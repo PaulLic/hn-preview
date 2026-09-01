@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HubNote (Combined Mock v9a)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --blue:#1D4F7C; --blue-dark:#143A5C; --blue-tint:#EAF1F7;
+  --ink:#1A2530; --doc-ink:#20242A; --muted:#5B6B7A; --faint:#9AA7B2;
+  --paper:#FFFFFF; --app-bg:#F2F4F6; --rule:#D8DFE6; --rule-soft:#EDF0F3;
+  --warn:#B97324; --warn-bg:#FBF3E6; --warn-rule:#E8D5B5; --err:#A63D2F; --ok:#2E6B4F; --ok-bg:#EAF3EE;
+  --fs-xs:12px; --fs-s:13px; --fs-m:14px; --fs-l:15px; --fs-xl:17px; --fs-h1:21px;
+  --r-ctl:4px; --r-card:8px;
+  --ui:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --print:Arial,'Helvetica Neue',Helvetica,sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{min-height:100%;}
+body{font-family:var(--ui); background:var(--app-bg); color:var(--ink); font-size:var(--fs-m); line-height:1.5; display:flex; flex-direction:column;}
+button{font-family:inherit; cursor:pointer; color:inherit;}
+button:disabled{cursor:default;}
+input,textarea,select{font-family:inherit; font-size:var(--fs-m); color:var(--ink);}
+:focus-visible{outline:2px solid var(--blue); outline-offset:2px;}
+.screen{display:none; flex:1; min-height:0; flex-direction:column;}
+.screen.on{display:flex;}
+.scroll{flex:1; min-height:0; overflow-y:auto;}
+
+/* ---------- chrome ---------- */
+.topbar{background:var(--blue); color:#fff; padding:10px 20px; display:flex; align-items:center; gap:14px; flex-shrink:0;}
+.topbar .mark{font-weight:700; font-size:var(--fs-xl); letter-spacing:.02em;}
+.topbar .mark span{font-weight:400; opacity:.85;}
+.topbar .env{margin-left:auto; font-size:var(--fs-xs); background:var(--blue-dark); padding:3px 10px; border-radius:var(--r-ctl);}
+.qa-banner{background:var(--warn-bg); color:var(--warn); border-bottom:1px solid var(--warn-rule); padding:5px 20px; font-size:var(--fs-xs); flex-shrink:0;}
+
+.subbar{background:#fff; border-bottom:1px solid var(--rule); padding:10px 20px; display:grid; grid-template-columns:auto 1fr auto; align-items:center; column-gap:16px; flex-shrink:0;}
+.subbar .back{border:1px solid var(--rule); background:#fff; border-radius:var(--r-ctl); padding:6px 12px; font-size:var(--fs-s); white-space:nowrap;}
+.subbar .back:hover{background:var(--blue-tint);}
+.subbar .who{font-weight:600; font-size:var(--fs-l);}
+.subbar .what{color:var(--muted); font-size:var(--fs-s);}
+.chip{font-size:var(--fs-xs); font-weight:600; padding:4px 10px; border-radius:var(--r-ctl); white-space:nowrap;}
+.chip.pending{color:var(--warn); background:var(--warn-bg);}
+.chip.ok{color:var(--ok); background:var(--ok-bg);}
+.chip:empty{display:none;}
+.subbar .right{display:flex; align-items:center; gap:8px;}
+.subbar .ep{border:none; background:none; color:var(--blue); font-size:var(--fs-s); font-weight:600; padding:4px 6px; border-radius:var(--r-ctl);}
+.subbar .ep:hover{background:var(--blue-tint);}
+
+/* ---------- patient list ---------- */
+.list-wrap{max-width:760px; margin:28px auto; padding:0 20px; width:100%;}
+.list-wrap h1{font-size:var(--fs-h1); font-weight:600; margin-bottom:2px;}
+.list-sub{color:var(--muted); font-size:var(--fs-s); margin-bottom:16px;}
+.grp{font-size:var(--fs-xs); font-weight:600; color:var(--muted); margin:18px 0 6px; text-transform:uppercase; letter-spacing:.05em;}
+.case-list{background:var(--paper); border:1px solid var(--rule); border-radius:var(--r-card); overflow:hidden;}
+.case-row{display:grid; grid-template-columns:74px 1fr auto 14px; align-items:center; column-gap:16px; width:100%; text-align:left; padding:14px 18px; border:none; border-bottom:1px solid var(--rule); background:#fff; font-size:inherit;}
+.case-row:last-child{border-bottom:none;}
+.case-row:hover{background:var(--blue-tint);}
+.case-day{font-weight:600; font-size:var(--fs-m); color:var(--blue);}
+.case-name{font-weight:600; font-size:var(--fs-l);}
+.case-proc{color:var(--muted); font-size:var(--fs-s); margin-top:1px;}
+.case-next{font-size:var(--fs-xs); font-weight:600; color:var(--blue); background:var(--blue-tint); border-radius:var(--r-ctl); padding:4px 10px; white-space:nowrap;}
+.case-chev{color:var(--faint); font-size:18px; line-height:1;}
+.case-next.done{color:var(--ok); background:var(--ok-bg);}
+
+/* ---------- episode ---------- */
+.ep-wrap{max-width:640px; margin:24px auto; padding:0 20px; width:100%;}
+.ep-doc{background:#fff; border:1px solid var(--rule); border-radius:var(--r-card); padding:16px 18px; margin-bottom:12px; display:flex; align-items:center; gap:14px;}
+.ep-doc .t{flex:1; min-width:0;}
+.ep-doc .t h3{font-size:var(--fs-l); font-weight:600;}
+.ep-doc .t .st{font-size:var(--fs-s); color:var(--muted); margin-top:2px;}
+.ep-doc .t .st strong{color:var(--ok); font-weight:600;}
+.ep-doc button{border:1px solid var(--blue); color:var(--blue); background:#fff; border-radius:var(--r-ctl); padding:8px 14px; font-size:var(--fs-s); font-weight:600; flex-shrink:0; min-width:96px;}
+.ep-doc button:disabled{border-color:var(--rule); color:var(--faint);}
+.ep-doc button.go{background:var(--blue); color:#fff;}
+
+/* ---------- document screens: two columns ---------- */
+.body2{flex:1; min-height:0; display:flex; justify-content:center; gap:0; max-width:1240px; width:100%; margin:0 auto;}
+.formcol{width:440px; flex-shrink:0; padding:20px 18px 40px 20px; overflow-y:auto;}
+.doccol{flex:1; min-width:0; padding:20px 24px 40px 6px; overflow-y:auto;}
+.fsec{background:#fff; border:1px solid var(--rule); border-radius:var(--r-card); padding:14px 16px; margin-bottom:12px;}
+.fsec h2{font-size:var(--fs-s); font-weight:600; color:var(--blue); margin-bottom:10px; display:flex; align-items:baseline; gap:6px;}
+.kv{display:flex; font-size:var(--fs-s); padding:3px 0;}
+.kv .k{width:120px; color:var(--muted); flex-shrink:0;}
+.kv .v{font-weight:500;}
+.field{margin-bottom:12px;}
+.field:last-child{margin-bottom:0;}
+.field label{display:block; font-size:var(--fs-xs); font-weight:600; margin-bottom:4px;}
+.field input[type=text], .field textarea, .field select, .fsec > input[type=text], .fsec > textarea{width:100%; border:1px solid var(--rule); border-radius:var(--r-ctl); padding:8px 10px; background:#fff; font-size:var(--fs-m);}
+textarea{resize:vertical; line-height:1.55;}
+textarea.dictate{min-height:150px; font-size:var(--fs-l); padding:12px;}
+textarea.std{font-size:var(--fs-s);}
+textarea:focus, input:focus, select:focus{outline:2px solid var(--blue); outline-offset:-1px;}
+input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
+.req{color:var(--err); font-weight:600;}
+
+.authrow{display:flex; flex-wrap:wrap; gap:8px;}
+.auth-btn{border:1px solid var(--rule); background:#fff; border-radius:var(--r-ctl); padding:8px 12px; font-size:var(--fs-s); text-align:left; flex:1 1 45%;}
+.auth-btn small{display:block; color:var(--muted); font-weight:400; font-size:var(--fs-xs);}
+.auth-btn.sel{border-color:var(--blue); background:var(--blue-tint); color:var(--blue); font-weight:600;}
+.author-line{display:flex; align-items:center; gap:10px; font-size:var(--fs-m);}
+.author-line .nm{font-weight:600; flex:1;}
+.author-line .role{color:var(--muted); font-weight:400;}
+.author-line .chg{border:1px solid var(--rule); background:#fff; border-radius:var(--r-ctl); padding:5px 10px; font-size:var(--fs-xs);}
+.checkfail{background:var(--warn-bg); border:1px solid var(--warn-rule); color:#6A4A1B; border-radius:var(--r-ctl); padding:9px 12px; font-size:var(--fs-s); margin-bottom:10px; display:none;}
+.checkfail.show{display:block;}
+.opt-row{display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;}
+.opt{border:1px solid var(--rule); background:#fff; border-radius:var(--r-ctl); padding:4px 10px; font-size:var(--fs-xs);}
+.opt.sel{border-color:var(--blue); background:var(--blue-tint); color:var(--blue); font-weight:600;}
+.outrow{display:flex; gap:10px;}
+.outrow button{flex:1; margin-top:0;}
+#scrDis .actions{position:static; box-shadow:none;}
+.kv2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.kv2 .field{margin-bottom:0;}
+.doc-sub{font-size:11.5px; color:var(--muted); margin:-10px 0 14px;}
+.dhead{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:14px;}
+.dhead .doc-title{margin-bottom:4px;}
+.dhead .doc-sub{margin:0;}
+.sticker{width:70mm; height:36mm; flex-shrink:0; border:1px dashed #B5BEC7; border-radius:2px; display:flex; align-items:center; justify-content:center; color:#B5BEC7; font-size:9pt;}
+.tabs{display:flex; gap:6px; max-width:720px; margin:0 auto 10px;}
+.tab{border:1px solid var(--rule); background:#fff; border-radius:var(--r-ctl); padding:6px 14px; font-size:var(--fs-s); color:var(--muted);}
+.tab.on{border-color:var(--blue); color:var(--blue); font-weight:600; background:var(--blue-tint);}
+.gen-note{font-size:var(--fs-xs); color:var(--muted); margin-bottom:6px;}
+.gen-note:empty{display:none;}
+.review-act{display:flex; gap:8px; align-items:center; font-size:var(--fs-s); font-weight:600; margin-top:8px;}
+.review-act input{width:16px; height:16px;}
+.blk .comp{background:var(--warn-bg); border-left:3px solid var(--warn-rule); padding:4px 8px; border-radius:2px;}
+.blk .small{font-size:11px; color:var(--muted);}
+.blk{margin-bottom:16px;}
+.blk h2{font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--rule); padding-bottom:3px; margin-bottom:8px;}
+.blk p{margin-bottom:5px;}
+.blk ul{padding-left:18px; margin:0 0 6px;}
+.blk .med-table{margin:2px 0 8px;}
+.blk.pt{background:#F7F9FB; border:1px solid var(--rule); border-radius:4px; padding:10px 12px 6px;}
+.blk .contact{color:var(--muted); font-size:12px;}
+.blk .empty{color:var(--faint); font-style:italic;}
+
+.default-state{display:flex; align-items:center; gap:10px; background:var(--ok-bg); border-radius:var(--r-ctl); padding:9px 12px; font-size:var(--fs-s); font-weight:600; color:var(--ok);}
+.default-state .dot{width:9px; height:9px; border-radius:50%; background:var(--ok); flex-shrink:0;}
+.add-btn{margin-top:10px; border:1px dashed var(--rule); background:#fff; color:var(--blue); border-radius:var(--r-ctl); padding:7px 12px; font-size:var(--fs-s); font-weight:600; width:100%;}
+.add-btn:hover{border-color:var(--blue); background:var(--blue-tint);}
+.panel{margin-top:10px; display:none;}
+.panel.open{display:block;}
+.check-item{padding:6px 2px; font-size:var(--fs-s); display:flex; gap:8px; align-items:flex-start;}
+.check-item input{margin-top:3px;}
+
+.adj-btnrow{display:flex; flex-wrap:wrap; gap:8px;}
+.adj-btn{border:1px solid var(--rule); background:#fff; color:var(--ink); border-radius:var(--r-ctl); padding:7px 12px; font-size:var(--fs-xs);}
+.adj-btn.open{border-color:var(--blue); color:var(--blue); font-weight:600; background:var(--blue-tint);}
+.adj-sec{display:none; margin-top:12px; border-top:1px solid var(--rule-soft); padding-top:12px;}
+.adj-sec.open{display:block;}
+.row-list{border:1px solid var(--rule-soft); border-radius:var(--r-ctl); overflow:hidden;}
+.row-item{display:flex; align-items:center; gap:8px; padding:7px 10px; border-bottom:1px solid var(--rule-soft); font-size:var(--fs-s);}
+.row-item:last-child{border-bottom:none;}
+.row-item .nm{flex:1;}
+.row-item .x{border:none; background:none; color:var(--muted); font-size:16px; padding:0 4px; line-height:1;}
+
+.actions{position:sticky; bottom:0; background:var(--app-bg); padding:10px 2px 12px; margin:0 -2px; z-index:4; box-shadow:0 -10px 10px -6px var(--app-bg);}
+.btn-primary{background:var(--blue); color:#fff; border:none; border-radius:var(--r-ctl); padding:12px 18px; font-size:var(--fs-l); font-weight:600; width:100%;}
+.btn-primary:hover:not(:disabled){background:var(--blue-dark);}
+.btn-primary:disabled{background:#9FB2C2;}
+.btn-secondary{background:#fff; color:var(--blue); border:1px solid var(--blue); border-radius:var(--r-ctl); padding:12px 18px; font-size:var(--fs-l); font-weight:600; width:100%; margin-top:10px;}
+.btn-secondary:disabled{color:var(--faint); border-color:var(--rule);}
+.confirm-act{display:flex; gap:10px; align-items:flex-start; font-size:var(--fs-s); font-weight:600; background:var(--warn-bg); border:1px solid var(--warn-rule); border-radius:var(--r-ctl); padding:11px 12px; margin-bottom:12px;}
+.confirm-act input{margin-top:3px; width:16px; height:16px; flex-shrink:0;}
+.confirm-act .by{display:block; font-weight:400; color:var(--muted); margin-top:2px;}
+
+/* ---------- preview column headings ---------- */
+.pv-h{font-size:var(--fs-s); font-weight:600; color:var(--blue); margin-bottom:8px;}
+
+/* ---------- label preview (true scale, 102 mm) ---------- */
+.labelwrap{max-width:560px; margin:0 auto 22px;}
+.rollbed{background:#E7EBEF; border:1px solid var(--rule); border-radius:var(--r-card); padding:22px; display:flex; justify-content:center; overflow-x:auto;}
+.label{font-family:var(--print); background:#fff; box-shadow:0 1px 4px rgba(20,40,60,.15); padding:4mm 3.5mm 5mm; color:#111; width:102mm; flex-shrink:0; position:relative;}
+.label:after{content:""; position:absolute; left:0; right:0; bottom:-1px; border-bottom:2px dashed #C3CCD4;}
+.lab-head{border-bottom:1px solid #333; padding-bottom:1.5mm; margin-bottom:1.5mm; display:flex; justify-content:space-between; align-items:flex-end; gap:4mm;}
+.lab-name{font-weight:700; font-size:10pt;}
+.lab-line{font-size:8pt; line-height:1.4;}
+.lab-right{text-align:right; white-space:nowrap;}
+.lab-body{font-size:9pt; line-height:1.45; white-space:pre-wrap; word-wrap:break-word; min-height:9mm;}
+.lab-body .empty{color:var(--faint); font-style:italic;}
+.lab-sig{margin-top:2mm; padding-top:1.5mm; border-top:1px solid #333; font-size:8pt; line-height:1.4;}
+.lab-sig .nm{font-weight:700;}
+
+/* ---------- entries log ---------- */
+.logwrap{max-width:560px; margin:0 auto;}
+.log{background:#fff; border:1px solid var(--rule); border-radius:var(--r-card); overflow:hidden;}
+.log-row{padding:12px 14px; border-bottom:1px solid var(--rule); display:grid; grid-template-columns:1fr auto; column-gap:12px;}
+.log-row:last-child{border-bottom:none;}
+.log-top{font-size:var(--fs-xs); display:flex; gap:8px; flex-wrap:wrap; align-items:baseline;}
+.log-when{font-weight:600; color:var(--blue); white-space:nowrap;}
+.log-who{color:var(--muted);}
+.log-top{grid-column:1; grid-row:1;}
+.log-act{grid-column:2; grid-row:1 / span 3; align-self:start;}
+.log-act button{border:1px solid var(--rule); background:#fff; border-radius:var(--r-ctl); padding:3px 9px; font-size:var(--fs-xs); white-space:nowrap;}
+.log-act button:hover{background:var(--blue-tint);}
+.log-text{font-size:var(--fs-s); margin-top:4px; white-space:pre-wrap; grid-column:1;}
+.log-ref{font-size:11px; color:var(--faint); margin-top:4px; font-family:ui-monospace,Menlo,Consolas,monospace; grid-column:1;}
+.log-empty{padding:16px; color:var(--muted); font-style:italic; font-size:var(--fs-s);}
+.refentries{max-height:260px; overflow-y:auto;}
+.refentries .log-row{padding:9px 11px; grid-template-columns:1fr;}
+
+/* ---------- A4 document preview ---------- */
+.page{font-family:var(--print); background:var(--paper); border:1px solid var(--rule); box-shadow:0 1px 4px rgba(20,40,60,.08); max-width:720px; margin:0 auto; padding:46px 54px 40px; position:relative; color:var(--doc-ink); font-size:13px; line-height:1.55; overflow:hidden;}
+.wm{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; overflow:hidden;}
+.wm span{transform:rotate(-30deg); font-size:20px; font-weight:700; color:rgba(166,61,47,.11); letter-spacing:.06em; white-space:nowrap;}
+.doc-title{font-size:16px; font-weight:700; letter-spacing:.04em; margin-bottom:14px;}
+.hdr-table{width:100%; border-collapse:collapse; margin-bottom:18px; font-size:12.5px;}
+.hdr-table td{border:1px solid var(--rule); padding:5px 9px;}
+.hdr-table .l{color:var(--muted); width:100px;}
+.dsec{margin-bottom:13px;}
+.dsec h3{font-size:12.5px; font-weight:700; margin-bottom:2px;}
+.dsec p{white-space:pre-wrap;}
+.dsec p + p{margin-top:6px;}
+.dsec .empty{color:var(--faint); font-style:italic;}
+.med-table{width:100%; border-collapse:collapse; font-size:12.5px; margin:6px 0;}
+.med-table td, .med-table th{border:1px solid var(--rule); padding:4px 8px; text-align:left; font-weight:400;}
+.med-table th{color:var(--muted); font-size:11.5px;}
+.sig-block{margin-top:22px; border-top:1px solid var(--rule); padding-top:12px;}
+.sig-name{font-weight:700;}
+.prov{margin-top:18px; font-size:10.5px; color:var(--muted); border-top:1px solid var(--rule); padding-top:8px; line-height:1.5;}
+
+/* ---------- medications editor ---------- */
+.medhead, .medrow{display:grid; grid-template-columns:2fr 1.6fr .8fr 24px; gap:6px; align-items:center;}
+.medhead{font-size:var(--fs-xs); font-weight:600; color:var(--muted); padding:0 2px 4px;}
+.medrow{margin-bottom:6px;}
+.medrow input{border:1px solid var(--rule); border-radius:var(--r-ctl); padding:7px 9px; font-size:var(--fs-s); min-width:0; width:100%;}
+.medrow .x{border:none; background:none; color:var(--muted); font-size:16px; padding:0; line-height:1; text-align:center;}
+
+/* ---------- modal ---------- */
+.modal-bg{position:fixed; inset:0; background:rgba(20,35,50,.45); display:none; align-items:center; justify-content:center; z-index:20;}
+.modal-bg.open{display:flex;}
+.modal{background:#fff; border-radius:var(--r-card); padding:24px 26px; width:400px; max-width:92vw;}
+.modal h3{font-size:var(--fs-xl); font-weight:600; margin-bottom:4px;}
+.modal p{font-size:var(--fs-s); color:var(--muted); margin-bottom:16px;}
+.pinrow{display:flex; gap:10px; margin-bottom:18px; justify-content:center;}
+.pinrow input{width:56px; height:56px; text-align:center; font-size:24px; border:1px solid var(--rule); border-radius:var(--r-ctl);}
+.modal .mrow{display:flex; gap:10px;}
+.modal .mrow button{flex:1; margin-top:0;}
+
+/* ---------- toast ---------- */
+.toast{position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; padding:11px 18px; border-radius:var(--r-ctl); font-size:var(--fs-s); max-width:92vw; box-shadow:0 4px 16px rgba(0,0,0,.25); opacity:0; transition:opacity .2s, transform .2s; z-index:30; pointer-events:none;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+/* ---------- phone ---------- */
+@media (max-width: 760px){
+  body{font-size:var(--fs-l); display:block; height:auto;}
+  .screen.on{display:block;}
+  .scroll{overflow:visible;}
+  .topbar{padding:10px 14px;}
+  .qa-banner{padding:5px 14px;}
+  .subbar{padding:10px 14px; grid-template-columns:auto 1fr; row-gap:6px;}
+  .subbar .back{grid-row:1; grid-column:1;}
+  .subbar .right{grid-row:1; grid-column:2; justify-self:end;}
+  .subbar .ttl{grid-row:2; grid-column:1 / span 2;}
+  .list-wrap{margin:16px auto; padding:0 14px;}
+  .case-row{grid-template-columns:1fr auto; row-gap:6px; padding:12px 14px;}
+  .case-day{grid-row:1; grid-column:1;}
+  .case-main{grid-row:2; grid-column:1 / span 2;}
+  .case-next{grid-row:1; grid-column:2;}
+  .case-chev{display:none;}
+  .ep-wrap{padding:0 14px;}
+  .ep-doc{flex-wrap:wrap;}
+  .ep-doc button{flex:1 1 100%; padding:12px;}
+  .body2{flex-direction:column; max-width:none;}
+  .formcol{width:100%; height:auto; overflow:visible; padding:14px 14px 8px;}
+  .doccol{width:100%; height:auto; overflow:visible; padding:0 14px 60px;}
+  textarea, select, input[type=text], input[type=password]{font-size:16px;}
+  textarea.dictate{min-height:200px;}
+  .btn-primary, .btn-secondary{padding:15px 18px;}
+  .auth-btn{flex:1 1 100%; padding:12px;}
+  .rollbed{padding:14px;}
+  .labelwrap, .logwrap{max-width:none;}
+  .page{padding:22px 16px; font-size:13px;}
+  .hdr-table .l{width:78px;}
+  .pinrow input{width:60px; height:60px;}
+  .medhead{display:none;}
+  .sticker{width:52mm; height:26mm;}
+  .outrow{flex-wrap:wrap;}
+  .outrow button{flex:1 1 100%;}
+  .medrow{grid-template-columns:1fr 1fr 24px; grid-template-areas:"m m x" "d q x";}
+  .medrow .m1{grid-area:m;} .medrow .m2{grid-area:d;} .medrow .m3{grid-area:q;} .medrow .x{grid-area:x;}
+  .medrow{border-bottom:1px solid var(--rule-soft); padding-bottom:6px;}
+  .actions{padding:8px 0 10px;}
+  #scrWard .doccol{display:flex; flex-direction:column;}
+  #scrWard .labelwrap{order:2; margin-top:22px;}
+  #scrWard .logwrap{order:1;}
+  .modal{padding:20px 18px;}
+}
+@media print{ body *{display:none !important;} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="mark">HubNote <span>· SpinePlus</span></div>
+  <div class="env">QA environment</div>
+</div>
+<div class="qa-banner">Combined mock, version 9a. Fictional patients throughout. Filing to SurgiHUB is switched off during parallel running.</div>
+
+<!-- ============ patients ============ -->
+<div class="screen on" id="scrList">
+  <div class="scroll">
+    <div class="list-wrap">
+      <h1>Patients</h1>
+      <div class="list-sub">Brisbane Private Hospital · retrieved from SurgiHUB at 06:48, Tuesday 1 September 2026</div>
+      <div class="grp">Theatre today</div>
+      <div class="case-list" id="listTheatre"></div>
+      <div class="grp">Inpatients</div>
+      <div class="case-list" id="listWard"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ episode ============ -->
+<div class="screen" id="scrEpisode">
+  <div class="subbar">
+    <button class="back" onclick="show('scrList'); buildLists()">&#8249; Patients</button>
+    <div class="ttl"><div class="who" id="epWho"></div><div class="what" id="epWhat"></div></div>
+    <div class="chip" id="epChip"></div>
+  </div>
+  <div class="scroll"><div class="ep-wrap" id="epDocs"></div></div>
+</div>
+
+<!-- ============ operation note ============ -->
+<div class="screen" id="scrOp">
+  <div class="subbar">
+    <button class="back" onclick="show('scrList'); buildLists()">&#8249; Patients</button>
+    <div class="ttl"><div class="who" id="opWho"></div><div class="what">Operation note</div></div>
+    <div class="right"><div class="chip pending" id="opState">Unsigned</div><button class="ep" onclick="openEpisode(cur.id)">Episode</button></div>
+  </div>
+  <div class="body2">
+    <div class="formcol">
+      <div class="fsec"><h2>From the booking</h2><div id="opRetrieved"></div></div>
+      <div class="fsec">
+        <h2>Operative diagnosis <span class="req">*</span></h2>
+        <input type="text" id="opDiag" oninput="renderOp()">
+      </div>
+      <div class="fsec">
+        <h2>Findings <span class="req">*</span></h2>
+        <textarea class="dictate" id="opFind" oninput="renderOp()"></textarea>
+      </div>
+      <div class="fsec">
+        <h2>Intraoperative complications</h2>
+        <div class="default-state" id="opCompState"><div class="dot"></div><div>None</div></div>
+        <button class="add-btn" onclick="togglePanel('opCompPanel')">Add a complication</button>
+        <div class="panel" id="opCompPanel"></div>
+      </div>
+      <div class="fsec">
+        <h2>Adjustments</h2>
+        <div class="adj-btnrow">
+          <button class="adj-btn" id="ab_type" onclick="toggleAdj('type')">Procedure type</button>
+          <button class="adj-btn" id="ab_proc" onclick="toggleAdj('proc')">Procedure name</button>
+          <button class="adj-btn" id="ab_items" onclick="toggleAdj('items')">Item numbers</button>
+          <button class="adj-btn" id="ab_imp" onclick="toggleAdj('imp')">Implants</button>
+          <button class="adj-btn" id="ab_text" onclick="toggleAdj('text')">Operative text</button>
+        </div>
+        <div class="adj-sec" id="adj_type">
+          <div class="field"><label>Template</label><select id="opType" onchange="applyTemplate(this.value)"></select></div>
+          <div class="field" style="font-size:var(--fs-xs); color:var(--muted);">Changing the type replaces the item numbers, implants and operative text with the template for the new procedure.</div>
+        </div>
+        <div class="adj-sec" id="adj_proc">
+          <div class="field"><label>Procedure name</label><input type="text" id="opProc" oninput="renderOp()"></div>
+        </div>
+        <div class="adj-sec" id="adj_items">
+          <div class="row-list" id="opItems"></div>
+          <button class="add-btn" onclick="addRow('items')">Add an item number</button>
+        </div>
+        <div class="adj-sec" id="adj_imp">
+          <div class="row-list" id="opImps"></div>
+          <button class="add-btn" onclick="addRow('implants')">Add an implant</button>
+        </div>
+        <div class="adj-sec" id="adj_text">
+          <div class="field"><label>Operative details</label><textarea class="std" id="opText" style="min-height:200px;" oninput="renderOp()"></textarea></div>
+          <div class="field"><label>Postoperative orders</label><textarea class="std" id="opPost" style="min-height:48px;" oninput="renderOp()"></textarea></div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="checkfail" id="opFail"></div>
+        <button class="btn-primary" id="opSign" onclick="startSign('op')">Sign with PIN</button>
+        <div class="outrow" id="opOut" style="display:none">
+          <button class="btn-primary" onclick="toast('Opens the printer dialogue for the chart copy. (Mock.)')">Print</button>
+          <button class="btn-secondary" onclick="toast('Downloads the signed PDF. (Mock.)')">Download PDF</button>
+        </div>
+      </div>
+    </div>
+    <div class="doccol"><div class="page" id="opPage"></div></div>
+  </div>
+</div>
+
+<!-- ============ progress notes ============ -->
+<div class="screen" id="scrWard">
+  <div class="subbar">
+    <button class="back" onclick="show('scrList'); buildLists()">&#8249; Patients</button>
+    <div class="ttl"><div class="who" id="wWho"></div><div class="what" id="wWhat"></div></div>
+    <div class="right"><div class="chip" id="wState"></div><button class="ep" onclick="openEpisode(cur.id)">Episode</button></div>
+  </div>
+  <div class="body2">
+    <div class="formcol">
+      <div class="fsec">
+        <h2>Ward round entry <span class="req">*</span></h2>
+        <textarea class="dictate" id="wEntry" autocapitalize="sentences" oninput="renderWard()"></textarea>
+      </div>
+      <div class="fsec">
+        <h2>Author <span class="req">*</span></h2>
+        <div class="author-line" id="wAuthorLine"></div>
+        <div class="panel" id="wAuthPanel">
+        <div class="authrow" id="wAuthors"></div>
+        <button class="add-btn" onclick="togglePanel('wRelief')">Relieving staff member</button>
+        <div class="panel" id="wRelief" style="border-top:1px solid var(--rule-soft); padding-top:10px;">
+          <div class="field"><label>Name</label><input type="text" id="wRName"></div>
+          <div class="field"><label>Role</label>
+            <select id="wRRole"><option>Relieving Nurse</option><option>Relieving Physiotherapist</option></select>
+          </div>
+          <button class="btn-secondary" style="padding:9px 14px; font-size:var(--fs-s);" onclick="addRelief('w')">Add for this admission</button>
+        </div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn-primary" id="wSign" onclick="startSign('ward')">Sign with PIN and print the label</button>
+      </div>
+    </div>
+    <div class="doccol">
+      <div class="labelwrap">
+        <div class="pv-h">Label</div>
+        <div class="rollbed"><div class="label" id="wLabel"></div></div>
+      </div>
+      <div class="logwrap">
+        <div class="pv-h">This admission</div>
+        <div class="log" id="wLog"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ discharge summary ============ -->
+<div class="screen" id="scrDis">
+  <div class="subbar">
+    <button class="back" onclick="show('scrList'); buildLists()">&#8249; Patients</button>
+    <div class="ttl"><div class="who" id="dWho"></div><div class="what">Discharge summary and patient note</div></div>
+    <div class="right"><div class="chip pending" id="dState">Unconfirmed</div><button class="ep" onclick="openEpisode(cur.id)">Episode</button></div>
+  </div>
+  <div class="body2">
+    <div class="formcol">
+      <div class="fsec"><h2>From the episode</h2><div id="dRetrieved"></div></div>
+      <div class="fsec">
+        <h2>Entries this admission</h2>
+        <div class="refentries log" id="dEntries"></div>
+      </div>
+      <div class="fsec">
+        <h2>Complications during the admission</h2>
+        <div class="default-state" id="dCompState"><div class="dot"></div><div>None</div></div>
+        <button class="add-btn" onclick="togglePanel('dCompPanel')">Add a complication</button>
+        <div class="panel" id="dCompPanel"></div>
+      </div>
+      <div class="fsec">
+        <h2>Course and condition at discharge <span class="req">*</span></h2>
+        <div class="gen-note" id="dProgNote"></div>
+        <textarea id="dProg" style="min-height:110px;" oninput="renderDis()"></textarea>
+        <label class="review-act"><input type="checkbox" id="dProgOk" onchange="renderDis()"><div>Reviewed and edited as needed</div></label>
+      </div>
+      <div class="fsec">
+        <h2>Discharged to</h2>
+        <div class="gen-note" id="dDestNote"></div>
+        <textarea class="std" id="dDest" style="min-height:44px;" oninput="renderDis()"></textarea>
+      </div>
+      <div class="fsec">
+        <h2>Medications on discharge</h2>
+        <div class="medhead"><div>Medication</div><div>Dose</div><div>Duration</div><div></div></div>
+        <div id="dMeds"></div>
+        <button class="add-btn" onclick="addMed()">Add a medication</button>
+        <div class="field" style="margin-top:12px;"><label>Changes to usual medications</label><textarea class="std" id="dMedChg" style="min-height:44px;" oninput="renderDis()"></textarea></div>
+      </div>
+      <div class="fsec">
+        <h2>Follow up</h2>
+        <div class="field"><label>Practice</label><textarea class="std" id="dFollow" style="min-height:44px;" oninput="renderDis()"></textarea></div>
+        <div class="field"><label>GP</label><textarea class="std" id="dGP" style="min-height:44px;" oninput="renderDis()"></textarea></div>
+      </div>
+      <div class="fsec">
+        <h2>Patient note</h2>
+        <div class="field"><label>Wound</label><textarea class="std" id="dWound" style="min-height:44px;" oninput="renderDis()"></textarea></div>
+        <div class="field"><label>Pain</label><textarea class="std" id="dPain" style="min-height:56px;" oninput="renderDis()"></textarea></div>
+        <div class="field"><label>Activity</label><textarea class="std" id="dAct" style="min-height:56px;" oninput="renderDis()"></textarea></div>
+        <div class="field"><label>Other</label><textarea class="std" id="dOther" style="min-height:44px;" oninput="renderDis()"></textarea></div>
+        <div class="field"><label>Contact us if</label><textarea class="std" id="dNotify" style="min-height:70px;" oninput="renderDis()"></textarea></div>
+      </div>
+      <div class="fsec">
+        <h2>Confirmed by <span class="req">*</span></h2>
+        <div class="authrow" id="dAuthors"></div>
+        <button class="add-btn" onclick="togglePanel('dRelief')">Relieving staff member</button>
+        <div class="panel" id="dRelief" style="border-top:1px solid var(--rule-soft); padding-top:10px;">
+          <div class="field"><label>Name</label><input type="text" id="dRName"></div>
+          <div class="field"><label>Role</label>
+            <select id="dRRole"><option>Relieving Nurse</option><option>Relieving Physiotherapist</option></select>
+          </div>
+          <button class="btn-secondary" style="padding:9px 14px; font-size:var(--fs-s);" onclick="addRelief('d')">Add for this admission</button>
+        </div>
+      </div>
+      <div class="actions">
+        <label class="confirm-act"><input type="checkbox" id="dConfirm" onchange="renderDis()"><div>I have read the summary and the patient note against the admission's entries and confirm them.<span class="by" id="dConfWho"></span></div></label>
+        <button class="btn-primary" id="dSign" onclick="startSign('dis')">Sign with PIN</button>
+        <div class="outrow" id="dOut" style="display:none">
+          <button class="btn-primary" onclick="toast('Opens the printer dialogue for the discharge summary. (Mock.)')">Print summary</button>
+          <button class="btn-secondary" onclick="toast('Opens the printer dialogue for the patient note. (Mock.)')">Print patient note</button>
+          <button class="btn-secondary" onclick="toast('Downloads both signed PDFs. (Mock.)')">Download</button>
+        </div>
+      </div>
+    </div>
+    <div class="doccol">
+      <div class="tabs">
+        <button class="tab on" id="tabSum" onclick="disTab('sum')">Discharge summary</button>
+        <button class="tab" id="tabNote" onclick="disTab('note')">Patient note</button>
+      </div>
+      <div class="page" id="dPage"></div>
+      <div class="page" id="dNote" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="signModal" onclick="if(event.target===this) closeSign()">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="mTitle">Sign</h3>
+    <p id="mWho"></p>
+    <div class="pinrow" id="pinrow">
+      <input type="password" maxlength="1" inputmode="numeric" autocomplete="off"><input type="password" maxlength="1" inputmode="numeric" autocomplete="off"><input type="password" maxlength="1" inputmode="numeric" autocomplete="off"><input type="password" maxlength="1" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="mrow">
+      <button class="btn-secondary" onclick="closeSign()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- fictional data only ---------- */
+const NOW = new Date(2026, 8, 1, 7, 40);
+
+const AUTHORS = [
+  {id:'bella',  name:'Isabella de Laine', role:'Inpatient Nurse'},
+  {id:'paul',   name:'Paul Licina',       role:'Spine Surgeon'},
+  {id:'xanthe', name:'Xanthe Meehan',     role:'Physiotherapist'},
+  {id:'theres', name:'Theres James',      role:'Physiotherapist'},
+];
+
+const ADMISSION_CODES = [
+  {code:'C40', label:'Wound ooze'},
+  {code:'C41', label:'Superficial wound infection'},
+  {code:'C42', label:'Deep infection'},
+  {code:'C50', label:'Urinary retention'},
+  {code:'C51', label:'Ileus'},
+  {code:'C60', label:'Return to theatre'},
+];
+const INTRAOP_CODES = [
+  {code:'C10', label:'Dural tear'},
+  {code:'C11', label:'Nerve root injury'},
+  {code:'C20', label:'Significant haemorrhage'},
+];
+
+const DIAG_DEFAULT = {
+  TLIF: '{level} degenerative disc disease with {side} radiculopathy',
+  PLIF: '{level} degenerative disc disease with {side} radiculopathy',
+  ALIF: '{level} degenerative disc disease',
+  LFUS: '{level} degenerative disc disease',
+  DISC: '{level} disc herniation with {side} radiculopathy',
+  LAMI: '{level} spinal canal stenosis',
+  SLAM: '{level} spinal canal stenosis',
+  ACDF: '{level} disc protrusion with {side} radiculopathy',
+  ACDR: '{level} disc protrusion with {side} radiculopathy',
+};
+function bookingParts(e){
+  if (!e._bk){   // level and side come from the booking and survive a change of procedure type
+    e._bk = { level:(e.proc.match(/\b[CTL]\d\/(?:\d|S1)\b/) || [''])[0],
+              side: /\bleft\b/i.test(e.proc) ? 'left' : /\bright\b/i.test(e.proc) ? 'right' : '' };
+  }
+  const code = e.procCode || (e.proc.match(/\(([A-Z]+)/) || [,''])[1];
+  return {code, level:e._bk.level, side:e._bk.side};
+}
+function diagDefault(e){
+  const b = bookingParts(e);
+  const t = DIAG_DEFAULT[b.code]; if (!t) return '';
+  return t.replace('{level}', b.level).replace(' with {side} radiculopathy', b.side ? ' with ' + b.side + ' radiculopathy' : ' with radiculopathy').trim();
+}
+function lateralityFail(e, texts){
+  const b = bookingParts(e); if (!b.side) return '';
+  const other = b.side === 'left' ? 'right' : 'left';
+  const hit = texts.some(t => new RegExp('\\b' + other + '\\b', 'i').test(t));
+  return hit ? `The narrative mentions "${other}"; the booking is ${b.side}. Correct one before signing.` : '';
+}
+/* Procedure templates: name pattern, item numbers, booked implants (with size options where the booking carries alternatives), operative text. Fictional configuration for the mock. */
+const TEMPLATES = {
+  TLIF: { label:'Minimally invasive TLIF', name:'Minimally invasive transforaminal lumbar interbody fusion {level}, {side} (TLIF)',
+    items:['51011','51021','51031'], implants:[{name:'IdentiTi PO cage', options:['10 mm','12 mm']}, 'NuVasive Reline screws x4'],
+    text:'Through a midline incision, a minimally invasive transforaminal lumbar interbody fusion was performed at the level indicated. Pedicle screws were placed with image guidance and position confirmed. The disc space was prepared, the cage introduced and posture restored. Haemostasis was confirmed and the wound closed in layers.' },
+  LFUS: { label:'Posterolateral lumbar fusion', name:'Posterolateral lumbar fusion {level} (LFUS)',
+    items:['51011','51021'], implants:['NuVasive Reline screws x4'],
+    text:'Through a midline incision the posterior elements were exposed at the level indicated. Pedicle screws were placed with image guidance and position confirmed. The transverse processes and facets were decorticated and graft laid posterolaterally. Haemostasis was confirmed and the wound closed in layers.' },
+  DISC: { label:'Lumbar microdiscectomy', name:'Lumbar microdiscectomy {level}, {side} (DISC)',
+    items:['51011','40330'], implants:[],
+    text:'Through a small midline incision a microdiscectomy was performed at the level indicated under the microscope. The nerve root was identified and protected, the disc fragment removed and the root confirmed free. Haemostasis was confirmed and the wound closed in layers.' },
+  LAMI: { label:'Lumbar laminectomy', name:'Lumbar laminectomy {level} (LAMI)',
+    items:['51011','40332'], implants:[],
+    text:'Through a midline incision a laminectomy was performed at the level indicated. The canal and lateral recesses were decompressed and the roots confirmed free. Haemostasis was confirmed and the wound closed in layers.' },
+  ACDF: { label:'Anterior cervical discectomy and fusion', name:'Anterior cervical discectomy and fusion {level} (ACDF)',
+    items:['51011','50803'], implants:[{name:'Zero-P VA cage', options:['5 mm','6 mm','7 mm']}],
+    text:'Through an anterior cervical approach the disc was exposed at the level indicated and confirmed with imaging. Discectomy and decompression were performed under the microscope, the cage introduced and position confirmed. Haemostasis was confirmed and the wound closed in layers.' },
+};
+function impName(i){ return typeof i === 'string' ? i : i.name + (i.choice ? ' ' + i.choice : ''); }
+function impPending(list){ return list.filter(i => typeof i !== 'string' && i.options && !i.choice).map(i => i.name); }
+function cloneImplants(list){ return list.map(i => typeof i === 'string' ? i : Object.assign({}, i)); }
+function applyTemplate(code){
+  const t = TEMPLATES[code]; if (!t) return;
+  const b = bookingParts(cur);
+  cur.procCode = code;
+  cur.proc = t.name.replace('{level}', b.level).replace(', {side}', b.side ? ', ' + b.side : '');
+  cur.items = t.items.slice();
+  cur.implants = cloneImplants(t.implants);
+  document.getElementById('opProc').value = cur.proc;
+  document.getElementById('opText').value = t.text;
+  document.getElementById('opDiag').value = diagDefault(cur);
+  buildRows(); renderOp();
+}
+const COMMON = {
+  pain: 'Take the regular pain relief as charted; keep bowels moving while on it. Nerve pain flares, with or without tingling, are common in the first weeks and settle; they are not an emergency.',
+  wound: 'The dressing is waterproof: shower as normal and leave it on. It is checked and removed at your two week BackSpace visit.',
+  activity: 'Walk every day, increasing as comfort allows. Drive once you move freely and are off strong pain relief.',
+  notify: 'Wound redness, swelling, bleeding or discharge, or a temperature',
+};
+const INSTR_SETS = {
+  LUMBAR: { name:'Lumbar v1',
+    activity: 'Walk every day, increasing as comfort allows. No heavy lifting, repeated bending or twisting for six weeks. Drive once you move freely and are off strong pain relief.',
+    notify: 'New or worsening leg weakness, or trouble passing urine\nSevere leg pain that stops you walking' },
+  CERVICAL: { name:'Cervical v1',
+    activity: 'Walk every day, increasing as comfort allows. No heavy lifting or sustained overhead work for six weeks. Drive once you can turn your head freely and are off strong pain relief.',
+    notify: 'New or worsening arm or hand weakness\nNew difficulty swallowing or breathing\nSevere arm pain with weakness' },
+};
+const SET_BY_CODE = { TLIF:'LUMBAR', DISC:'LUMBAR', PLIF:'LUMBAR', ALIF:'LUMBAR', LFUS:'LUMBAR', LAMI:'LUMBAR', SLAM:'LUMBAR', ACDF:'CERVICAL', ACDR:'CERVICAL' };
+function instrFor(e){
+  const code = (e.proc.match(/\(([A-Z]+)/) || [,''])[1];
+  const set = INSTR_SETS[SET_BY_CODE[code]] || {};
+  return {
+    setName: set.name || 'Common v1',
+    pain: set.pain || COMMON.pain,
+    wound: set.wound || COMMON.wound,
+    activity: set.activity || COMMON.activity,
+    notify: ((set.notify ? set.notify + '\n' : '') + COMMON.notify),
+  };
+}
+const STD_CONTACT = 'SpinePlus 1300 525 354 or message us in SurgiHUB. In an emergency, go to an emergency department.';
+const STD_FOLLOW = 'BackSpace at two, five and eight weeks; the practice will confirm times.';
+const STD_GP = 'No action required. Recurrent nerve pain is managed through BackSpace; please contact the practice before imaging or referral.';
+const STD_APP = 'Your SurgiHUB app has the full recovery guide, exercises, certificates and messaging.';
+
+const EPISODES = [
+  { id:'T1', stage:'theatre', name:'NGUYEN, Marisol', dob:'22/07/1969',
+    proc:'Minimally invasive transforaminal lumbar interbody fusion L4/5, left (TLIF)',
+    opDate:new Date(2026,8,1), opTime:'08:00', surgeon:'Paul Licina', anaesthetist:'S Whitfield',
+    items:['51011','51021','51031'], implants:[{name:'IdentiTi PO cage', options:['10 mm','12 mm']}, 'NuVasive Reline screws x4'],
+    opNote:null, entries:[], dis:null },
+  { id:'W1', stage:'ward', name:'CARTWRIGHT, Elaine', dob:'14/03/1961',
+    proc:'Minimally invasive transforaminal lumbar interbody fusion L4/5, right (TLIF)',
+    opDate:new Date(2026,7,29), surgeon:'Paul Licina', anaesthetist:'S Whitfield',
+    items:['51011','51021','51031'], implants:['IdentiTi PO cage 12 mm','NuVasive Reline screws x4'],
+    opNote:{diag:'L4/5 disc degeneration with right L5 radiculopathy', findings:'Severe lateral recess stenosis at L4/5 on the right with a compressed L5 root, decompressed fully.', signed:'29/08/2026 14:20', ref:'a41b09ce', complications:[]},
+    entries:[
+      {when:new Date(2026,7,30,7,55), author:AUTHORS[1], text:'Reviewed on morning round with Bella. Comfortable overnight, oral analgesia adequate. Wound dry, drain out. Mobilising to chair today.', hash:'9f31c2ab'},
+      {when:new Date(2026,7,31,8,10), author:AUTHORS[0], text:'Obs stable, afebrile. Wound dry and intact. Walked to bathroom with physio, steady. Bowels open. Analgesia stepped down to oral only.', hash:'4be07d11'},
+    ],
+    dis:null },
+  { id:'W2', stage:'ward', name:'OKAFOR, Daniel', dob:'02/11/1978',
+    proc:'Lumbar microdiscectomy L5/S1, right (DISC)',
+    opDate:new Date(2026,7,28), surgeon:'Paul Licina', anaesthetist:'R Menon',
+    items:['51011','40330'], implants:[],
+    opNote:{diag:'L5/S1 disc herniation with right S1 radiculopathy', findings:'Large sequestrated fragment beneath the right S1 root, removed. Root free at close.', signed:'28/08/2026 11:05', ref:'77c1d0e4', complications:[]},
+    entries:[
+      {when:new Date(2026,7,29,8,5), author:AUTHORS[0], text:'Comfortable. Wound dry. Mobilised independently. Leg pain resolved.', hash:'b2e94c07'},
+      {when:new Date(2026,7,30,8,20), author:AUTHORS[2], text:'Physio review. Walking the corridor unaided, stairs assessed and safe. Ready for discharge from a physiotherapy perspective.', hash:'e01a663f'},
+      {when:new Date(2026,7,31,8,0), author:AUTHORS[0], text:'Remains well. Wound dry and intact. Analgesia minimal.', hash:'1c8f92da'},
+      {when:new Date(2026,8,1,7,25), author:AUTHORS[1], text:'Reviewed on morning round. Remains well. Wound dry and intact. Analgesia minimal. Walking unaided, stairs assessed safe. For discharge home today.', hash:'f4a2c981'},
+    ],
+    dis:{ready:true}, planning:'Home with his partner; working from home for two weeks.' },
+  { id:'W3', stage:'ward', name:'PAPADOPOULOS, Helen', dob:'09/05/1972',
+    proc:'Anterior cervical discectomy and fusion C5/6 (ACDF)',
+    opDate:new Date(2026,7,30), surgeon:'Paul Licina', anaesthetist:'S Whitfield',
+    items:['51011','50803'], implants:['Zero-P VA cage 6 mm'],
+    opNote:{diag:'C5/6 disc protrusion with left C6 radiculopathy', findings:'Large left paracentral protrusion compressing the C6 root, removed. Root decompressed.', signed:'30/08/2026 13:40', ref:'c9e2517b', complications:[]},
+    entries:[
+      {when:new Date(2026,7,31,8,25), author:AUTHORS[0], text:'Comfortable overnight. Swallowing normally, voice normal. Wound dry. Mobilising independently.', hash:'2d7b40c9'},
+      {when:new Date(2026,8,1,7,15), author:AUTHORS[1], text:'Reviewed on morning round. Arm pain resolved, no weakness. Swallowing and voice normal. Wound dry and intact. For discharge home today.', hash:'8a03f16e'},
+    ],
+    dis:{ready:true}, planning:'To her daughter\'s house in Toowoomba for the first week, then home to Mackay by car with a stop overnight.' },
+];
+
+let cur = null;
+let selAuthor = null;      // ward entry author
+let dAuthor = null;        // discharge confirmer
+let signCtx = null;
+let dMeds = [{m:'Paracetamol 665 mg', d:'Two tablets three times daily', q:'Two weeks, then as needed'}, {m:'Celecoxib 200 mg', d:'One daily with food', q:'Two weeks'}, {m:'Tapentadol IR 50 mg', d:'One up to four times daily if needed', q:'Five days, no repeat'}];
+
+const two = n => String(n).padStart(2,'0');
+const dmy = d => two(d.getDate()) + '/' + two(d.getMonth()+1) + '/' + d.getFullYear();
+const hm  = d => two(d.getHours()) + ':' + two(d.getMinutes());
+function podays(e, when){
+  const a = new Date(e.opDate); a.setHours(0,0,0,0);
+  const w = new Date(when);     w.setHours(0,0,0,0);
+  return Math.round((w - a) / 86400000);       // day of surgery = Day 0; the count is days post-op
+}
+function dayLabel(e, when){ const n = podays(e, when); return n < 0 ? 'Pre-op' : 'Day ' + n; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function kv(k,v){ return `<div class="kv"><div class="k">${k}</div><div class="v">${v}</div></div>`; }
+function show(id){ document.querySelectorAll('.screen').forEach(s => s.classList.remove('on')); document.getElementById(id).classList.add('on'); window.scrollTo(0,0); document.querySelectorAll('.scroll,.formcol,.doccol').forEach(el => el.scrollTop = 0); }
+function togglePanel(id){ document.getElementById(id).classList.toggle('open'); }
+function toggleAdj(k){
+  document.getElementById('adj_'+k).classList.toggle('open');
+  document.getElementById('ab_'+k).classList.toggle('open');
+}
+let toastT;
+function toast(msg){
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3200);
+}
+function setChip(id, text, kind){ const c = document.getElementById(id); c.textContent = text || ''; c.className = 'chip' + (kind ? ' ' + kind : ''); }
+function authorButtons(list, sel, onpick){
+  return list.map(a =>
+    `<button class="auth-btn ${sel && sel.id===a.id ? 'sel':''}" onclick="${onpick}('${a.id}')">${esc(a.name)}<small>${esc(a.role)}${a.relief ? ' · relief' : ''}</small></button>`).join('');
+}
+
+/* ---------- patients ---------- */
+function buildLists(){
+  const rows = e => { const na = nextAction(e); return `<button class="case-row" onclick="openDoc('${na.act}','${e.id}')">
+    <div class="case-day">${e.stage==='theatre' ? e.opTime : dayLabel(e, NOW)}</div>
+    <div class="case-main"><div class="case-name">${e.name}</div><div class="case-proc">${e.proc}</div></div>
+    <div class="case-next ${na.done ? 'done' : ''}">${na.short}</div>
+    <div class="case-chev">&#8250;</div>
+  </button>`; };
+  document.getElementById('listTheatre').innerHTML = EPISODES.filter(e => e.stage==='theatre').map(rows).join('') || '<div class="log-empty">None today.</div>';
+  document.getElementById('listWard').innerHTML = EPISODES.filter(e => e.stage==='ward').map(rows).join('') || '<div class="log-empty">None.</div>';
+}
+function seenToday(e){
+  const l = e.entries[e.entries.length-1];
+  return l && dmy(l.when) === dmy(NOW) ? l : null;
+}
+function nextAction(e){
+  if (e.stage === 'theatre' && !e.opNote) return {short:'Operation note', act:'op'};
+  if (e.dis && e.dis.signed) return {short:'Discharged ' + hm(new Date(NOW)), act:'dis', done:true};
+  if (e.dis && e.dis.ready) return {short:'Discharge summary', act:'dis'};
+  const l = seenToday(e);
+  if (l) return {short:'Seen ' + hm(l.when), act:'ward', done:true};
+  return {short:'Ward round entry', act:'ward'};
+}
+
+/* ---------- episode ---------- */
+function openEpisode(id){
+  cur = EPISODES.find(e => e.id === id);
+  document.getElementById('epWho').textContent = cur.name;
+  document.getElementById('epWhat').textContent = cur.proc + ' · operation ' + dmy(cur.opDate);
+  setChip('epChip', cur.stage === 'theatre' ? 'Theatre ' + cur.opTime : dayLabel(cur, NOW), '');
+  const next = nextAction(cur).act;
+  const last = cur.entries[cur.entries.length-1];
+  const docs = [
+    { h:'Operation note',
+      st: cur.opNote ? `<strong>Signed</strong> ${cur.opNote.signed} · filed to SurgiHUB` : 'Not written',
+      btn: cur.opNote ? 'Open' : 'Write', act:'op', on: true },
+    { h:'Progress notes',
+      st: cur.entries.length ? `<strong>${cur.entries.length} entr${cur.entries.length===1?'y':'ies'}</strong> · last ${dmy(last.when)} ${hm(last.when)}, ${last.author.name}` : 'No entries yet',
+      btn:'New entry', act:'ward', on: !!cur.opNote || cur.stage !== 'theatre' },
+    { h:'Discharge summary',
+      st: cur.dis && cur.dis.signed ? `<strong>Confirmed and signed</strong> ${cur.dis.signed}` : (cur.dis && cur.dis.ready ? 'Ready to prepare' : 'At discharge'),
+      btn: cur.dis && cur.dis.signed ? 'Open' : 'Prepare', act:'dis', on: !!(cur.dis && cur.dis.ready) },
+  ];
+  document.getElementById('epDocs').innerHTML = docs.map(d => `
+    <div class="ep-doc">
+      <div class="t"><h3>${d.h}</h3><div class="st">${d.st}</div></div>
+      <button ${d.on ? '' : 'disabled'} class="${d.act===next ? 'go' : ''}" onclick="openDoc('${d.act}')">${d.btn}</button>
+    </div>`).join('');
+  show('scrEpisode');
+}
+function openDoc(act, id){
+  if (id) cur = EPISODES.find(e => e.id === id);
+  if (act === 'op') openOp();
+  else if (act === 'ward') openWard();
+  else openDis();
+}
+
+/* ---------- operation note ---------- */
+function openOp(){
+  document.getElementById('opWho').textContent = cur.name;
+  document.getElementById('opRetrieved').innerHTML =
+    kv('Patient', cur.name) + kv('Date of birth', cur.dob) + kv('Operation', cur.proc) +
+    kv('Date', dmy(cur.opDate)) + kv('Surgeon', cur.surgeon) + kv('Anaesthetist', cur.anaesthetist);
+  buildRows();
+  document.getElementById('opCompPanel').innerHTML = INTRAOP_CODES.map(c =>
+    `<label class="check-item"><input type="checkbox" onchange="renderOp()" data-code="${c.code}"><div>${c.label}</div></label>`).join('');
+  const signed = !!cur.opNote;
+  document.getElementById('opDiag').value = signed ? cur.opNote.diag : diagDefault(cur);
+  document.getElementById('opFind').value = signed ? cur.opNote.findings : '';
+  document.getElementById('opProc').value = cur.proc;
+  const tcode = bookingParts(cur).code;
+  document.getElementById('opType').innerHTML = Object.keys(TEMPLATES).map(k => `<option value="${k}" ${k===tcode?'selected':''}>${TEMPLATES[k].label}</option>`).join('');
+  document.getElementById('opText').value = (TEMPLATES[tcode] || TEMPLATES.TLIF).text;
+  document.querySelectorAll('#scrOp .adj-sec, #scrOp .adj-btn').forEach(el => el.classList.remove('open'));
+  if (!signed && impPending(cur.implants).length){ document.getElementById('adj_imp').classList.add('open'); document.getElementById('ab_imp').classList.add('open'); }
+  document.getElementById('opPost').value = 'Routine postoperative orders per pathway. Mobilise Day 0 as tolerated.';
+  document.getElementById('opDiag').disabled = document.getElementById('opFind').disabled = signed;
+  setChip('opState', signed ? 'Signed and filed ' + cur.opNote.signed : 'Unsigned', signed ? 'ok' : 'pending');
+  document.getElementById('opOut').style.display = signed ? 'flex' : 'none';
+  document.getElementById('opSign').style.display = signed ? 'none' : '';
+  renderOp();
+  show('scrOp');
+  if (!signed) setTimeout(() => document.getElementById('opFind').focus(), 50);
+}
+function buildRows(){
+  const row = (list, i) => `<div class="row-item"><div class="nm">${esc(list[i])}</div><button class="x" title="Remove" onclick="removeRow('${list===cur.items?'items':'implants'}',${i})">&times;</button></div>`;
+  document.getElementById('opItems').innerHTML = cur.items.length ? cur.items.map((_, i) => row(cur.items, i)).join('') : '<div class="log-empty">None.</div>';
+  const irow = (imp, i) => {
+    const opts = (typeof imp !== 'string' && imp.options) ? `<div class="opt-row">${imp.options.map(o =>
+      `<button class="opt ${imp.choice===o?'sel':''}" onclick="cur.implants[${i}].choice='${o}'; buildRows(); renderOp()">${o}</button>`).join('')}</div>` : '';
+    return `<div class="row-item"><div class="nm">${esc(typeof imp === 'string' ? imp : imp.name)}${opts}</div><button class="x" title="Remove" onclick="removeRow('implants',${i})">&times;</button></div>`;
+  };
+  document.getElementById('opImps').innerHTML = cur.implants.length ? cur.implants.map(irow).join('') : '<div class="log-empty">None booked.</div>';
+}
+function addRow(kind){ toast(kind === 'items' ? 'Opens the MBS item search. (Mock.)' : 'Opens the implant catalogue. (Mock.)'); }
+function removeRow(kind, i){ if (cur.opNote) return; cur[kind].splice(i,1); buildRows(); renderOp(); }
+function opComps(){
+  return Array.from(document.querySelectorAll('#opCompPanel input:checked')).map(i => {
+    const c = INTRAOP_CODES.find(x => x.code === i.dataset.code); return c.label;
+  });
+}
+function compState(id, comps){
+  const el = document.getElementById(id);
+  el.innerHTML = comps.length ? `<div class="dot" style="background:var(--warn)"></div><div>${comps.map(esc).join('; ')}</div>` : '<div class="dot"></div><div>None</div>';
+  el.style.background = comps.length ? 'var(--warn-bg)' : 'var(--ok-bg)';
+  el.style.color = comps.length ? 'var(--warn)' : 'var(--ok)';
+}
+function renderOp(){
+  const diag = document.getElementById('opDiag').value, find = document.getElementById('opFind').value;
+  const comps = opComps();
+  compState('opCompState', comps);
+  const signed = !!cur.opNote;
+  const pend = signed ? [] : impPending(cur.implants);
+  const fail = signed ? '' : (lateralityFail(cur, [diag, find]) || (pend.length ? 'Choose the size for: ' + pend.join(', ') + '.' : ''));
+  const f = document.getElementById('opFail'); f.textContent = fail; f.className = 'checkfail' + (fail ? ' show' : '');
+  document.getElementById('opSign').disabled = signed || !!fail || !(diag.trim() && find.trim());
+  document.getElementById('opPage').innerHTML = `
+    <div class="wm"><span>PARALLEL RUNNING · NOT THE RECORD</span></div>
+    ${docHead('OPERATION NOTE', 'Brisbane Private Hospital · ' + dmy(cur.opDate))}
+    <table class="hdr-table">
+      <tr><td class="l">Patient</td><td>${cur.name}</td><td class="l">Date</td><td>${dmy(cur.opDate)}</td></tr>
+      <tr><td class="l">Date of birth</td><td>${cur.dob}</td><td class="l">Surgeon</td><td>${cur.surgeon}</td></tr>
+      <tr><td class="l">Anaesthetist</td><td>${cur.anaesthetist}</td><td class="l"></td><td></td></tr>
+    </table>
+    <div class="dsec"><h3>Procedure</h3><p>${esc(document.getElementById('opProc').value)}</p></div>
+    <div class="dsec"><h3>Operative diagnosis</h3>${diag ? '<p>'+esc(diag)+'</p>' : '<p class="empty">Required before signing</p>'}</div>
+    <div class="dsec"><h3>Findings</h3>${find ? '<p>'+esc(find)+'</p>' : '<p class="empty">Required before signing</p>'}</div>
+    <div class="dsec"><h3>Operative details</h3><p>${esc(document.getElementById('opText').value)}</p></div>
+    ${cur.implants.length ? '<div class="dsec"><h3>Implants</h3><p>'+cur.implants.map(i => esc(impName(i))).join('\n')+'</p></div>' : ''}
+    <div class="dsec"><h3>Intraoperative complications</h3><p>${comps.length ? comps.map(esc).join('\n') : 'Nil'}</p></div>
+    <div class="dsec"><h3>Postoperative orders</h3><p>${esc(document.getElementById('opPost').value)}</p></div>
+    <div class="dsec"><h3>Item numbers</h3><p>${cur.items.join(', ')}</p></div>
+    <div class="sig-block">${cur.opNote
+      ? `<span class="sig-name">PAUL LICINA</span>, Spine Surgeon<br>Signed ${cur.opNote.signed}`
+      : '<span class="empty">Unsigned</span>'}</div>
+    <div class="prov">Data retrieved from SurgiHUB (QA) on ${dmy(NOW)}. Template ${bookingParts(cur).code || 'TLIF'} v1. ${cur.opNote ? 'Document reference ' + cur.opNote.ref + '.' : 'Document reference computed at signing.'}</div>`;
+}
+
+/* ---------- progress notes ---------- */
+function openWard(){
+  document.getElementById('wWho').textContent = cur.name;
+  document.getElementById('wWhat').textContent = 'DOB ' + cur.dob + ' · ' + cur.proc + ' · operation ' + dmy(cur.opDate);
+  setChip('wState', dayLabel(cur, NOW), '');
+  document.getElementById('wEntry').value = '';
+  if (!selAuthor){ let id = null; try{ id = localStorage.getItem('hubnote.author'); }catch(e){} selAuthor = AUTHORS.find(a => a.id === id) || AUTHORS[1]; }
+  document.getElementById('wAuthPanel').classList.remove('open');
+  buildAuthors(); buildWardLog(); renderWard();
+  show('scrWard');
+  setTimeout(() => document.getElementById('wEntry').focus(), 50);
+}
+function buildAuthors(){
+  document.getElementById('wAuthors').innerHTML = authorButtons(AUTHORS, selAuthor, 'pickAuthor');
+  document.getElementById('wAuthorLine').innerHTML = selAuthor
+    ? `<div class="nm">${esc(selAuthor.name)}<span class="role">, ${esc(selAuthor.role)}</span></div><button class="chg" onclick="togglePanel('wAuthPanel')">Change</button>`
+    : `<div class="nm" style="color:var(--muted); font-weight:400">No author selected</div><button class="chg" onclick="togglePanel('wAuthPanel')">Choose</button>`;
+}
+function pickAuthor(id){
+  selAuthor = AUTHORS.find(a => a.id === id);
+  try{ localStorage.setItem('hubnote.author', id); }catch(e){}
+  document.getElementById('wAuthPanel').classList.remove('open');
+  buildAuthors(); renderWard();
+}
+function addRelief(p){
+  const nameEl = document.getElementById(p+'RName');
+  const name = nameEl.value.trim();
+  if (!name){ nameEl.focus(); return; }
+  const a = {id:'relief'+Date.now(), name, role:document.getElementById(p+'RRole').value, relief:true};
+  AUTHORS.push(a);
+  nameEl.value = '';
+  document.getElementById(p+'Relief').classList.remove('open');
+  if (p === 'w') pickAuthor(a.id); else pickDAuthor(a.id);
+}
+function renderWard(){
+  const text = document.getElementById('wEntry').value;
+  document.getElementById('wLabel').innerHTML = `
+    <div class="lab-head">
+      <div><div class="lab-name">${cur.name}</div><div class="lab-line">DOB ${cur.dob}</div></div>
+      <div class="lab-right lab-line">${dmy(NOW)} ${hm(NOW)}<br><b>${dayLabel(cur, NOW)}</b></div>
+    </div>
+    <div class="lab-body">${text ? esc(text) : '<span class="empty">Entry</span>'}</div>
+    <div class="lab-sig"><span class="nm">${selAuthor ? esc(selAuthor.name) : '&nbsp;'}</span>${selAuthor ? ', ' + esc(selAuthor.role) : ''}</div>`;
+  document.getElementById('wSign').disabled = !(selAuthor && text.trim());
+}
+function buildWardLog(){
+  const el = document.getElementById('wLog');
+  if (!cur.entries.length){ el.innerHTML = '<div class="log-empty">No entries this admission yet.</div>'; return; }
+  el.innerHTML = cur.entries.slice().reverse().map(e => `
+    <div class="log-row">
+      <div class="log-top">
+        <span class="log-when">${dmy(e.when)} ${hm(e.when)} · ${dayLabel(cur, e.when)}</span>
+        <span class="log-who">${esc(e.author.name)}, ${esc(e.author.role)}</span>
+      </div>
+      <div class="log-act"><button onclick="toast('Reprints the label. (Mock.)')">Reprint label</button></div>
+      <div class="log-text">${esc(e.text)}</div>
+      <div class="log-ref">${e.hash}</div>
+    </div>`).join('');
+}
+
+/* ---------- discharge summary and patient note ---------- */
+function nights(e){ return Math.max(0, podays(e, NOW)); }
+function firstName(e){ const p = e.name.split(','); return p[1] ? p[1].trim() : 'the patient'; }
+/* Draft course generated from the signed entries. In the mock this is a deterministic assembly; in the product it is the
+   generation step, which runs only under the phase-two hosting arrangement and is always reviewed before signing. */
+function splitSentences(t){
+  return String(t).replace(/\.\s+/g, '.\u0001').split('\u0001');
+}
+function draftCourse(e, comps){
+  const n = nights(e);
+  const drop = /^(reviewed on morning round|for discharge home today|physio review)\.?$/i;
+  const seen = {};
+  const sentences = [];
+  e.entries.forEach(en => splitSentences(en.text).forEach(s => {
+    const t = s.trim().replace(/\.$/, ''); if (!t || drop.test(t)) return;
+    const k = t.toLowerCase(); if (seen[k]) return; seen[k] = true; sentences.push(t);
+  }));
+  const tail = sentences.slice(-4).join('. ');
+  return `${n}-night stay${comps.length ? ' complicated by ' + comps.join(', ').toLowerCase() : ', uncomplicated'}. ${tail}${tail ? '.' : ''}`;
+}
+function openDis(){
+  document.getElementById('dWho').textContent = cur.name;
+  const signed = cur.dis && cur.dis.signed;
+  const on = cur.opNote || {};
+  document.getElementById('dRetrieved').innerHTML =
+    kv('Patient', cur.name) + kv('Date of birth', cur.dob) +
+    kv('Operation', cur.proc) + kv('Admitted', dmy(cur.opDate)) + kv('Discharged', dmy(NOW) + ' · ' + nights(cur) + ' night' + (nights(cur)===1?'':'s')) +
+    kv('Diagnosis', on.diag || 'Operation note not found');
+  document.getElementById('dCompPanel').innerHTML = ADMISSION_CODES.map(c =>
+    `<label class="check-item"><input type="checkbox" onchange="renderDis()" data-code="${c.code}"><div>${c.label}</div></label>`).join('');
+  document.getElementById('dEntries').innerHTML = cur.entries.map(e => `
+    <div class="log-row">
+      <div class="log-top"><span class="log-when">${dmy(e.when)} · ${dayLabel(cur, e.when)}</span><span class="log-who">${esc(e.author.name)}</span></div>
+      <div class="log-text">${esc(e.text)}</div>
+    </div>`).join('') || '<div class="log-empty">No entries.</div>';
+  const d = signed ? cur.dis : {};
+  document.getElementById('dProg').value = d.prog !== undefined ? d.prog : draftCourse(cur, []);
+  document.getElementById('dProgNote').textContent = signed ? '' : 'Draft generated from the admission’s ' + cur.entries.length + ' signed entries.';
+  document.getElementById('dProgOk').checked = !!signed;
+  document.getElementById('dDest').value = d.dest !== undefined ? d.dest : (cur.planning || 'Home');
+  document.getElementById('dDestNote').textContent = signed ? '' : (cur.planning ? 'From the discharge planning note.' : '');
+  const ins = instrFor(cur);
+  cur._setName = ins.setName;
+  document.getElementById('dPain').value = d.pain !== undefined ? d.pain : ins.pain;
+  document.getElementById('dWound').value = d.wound !== undefined ? d.wound : ins.wound;
+  document.getElementById('dAct').value = d.act !== undefined ? d.act : ins.activity;
+  document.getElementById('dOther').value = d.other || '';
+  document.getElementById('dNotify').value = d.notify !== undefined ? d.notify : ins.notify;
+  document.getElementById('dFollow').value = d.follow !== undefined ? d.follow : STD_FOLLOW;
+  document.getElementById('dGP').value = d.gp !== undefined ? d.gp : STD_GP;
+  document.getElementById('dMedChg').value = d.medchg || '';
+  if (d.meds) dMeds = d.meds.map(m => Object.assign({}, m));
+  dAuthor = signed ? cur.dis.signedBy : AUTHORS[0];
+  document.getElementById('dConfirm').checked = !!signed;
+  document.getElementById('dConfirm').disabled = !!signed;
+  document.getElementById('dProgOk').disabled = !!signed;
+  document.getElementById('dConfWho').textContent = signed ? 'Confirmed by ' + cur.dis.signedBy.name + ', ' + cur.dis.signed + '.' : '';
+  setChip('dState', signed ? 'Confirmed, signed and filed ' + cur.dis.signed : 'Unconfirmed', signed ? 'ok' : 'pending');
+  disTab('sum');
+  buildDAuthors(); buildMeds(); renderDis();
+  document.querySelectorAll('#scrDis textarea, #scrDis input[type=text], #scrDis .medrow input, #scrDis .add-btn, #scrDis .medrow .x').forEach(el => el.disabled = !!signed);
+  show('scrDis');
+}
+function disTab(t){
+  document.getElementById('dPage').style.display = t === 'sum' ? '' : 'none';
+  document.getElementById('dNote').style.display = t === 'note' ? '' : 'none';
+  document.getElementById('tabSum').className = 'tab' + (t === 'sum' ? ' on' : '');
+  document.getElementById('tabNote').className = 'tab' + (t === 'note' ? ' on' : '');
+}
+function buildDAuthors(){ document.getElementById('dAuthors').innerHTML = authorButtons(AUTHORS.filter(a => a.id !== 'paul'), dAuthor, 'pickDAuthor'); }
+function pickDAuthor(id){ if (cur.dis && cur.dis.signed) return; dAuthor = AUTHORS.find(a => a.id === id); buildDAuthors(); renderDis(); }
+function buildMeds(){
+  document.getElementById('dMeds').innerHTML = dMeds.map((m,i) => `
+    <div class="medrow">
+      <input class="m1" value="${esc(m.m)}" oninput="dMeds[${i}].m=this.value; renderDis()">
+      <input class="m2" value="${esc(m.d)}" oninput="dMeds[${i}].d=this.value; renderDis()">
+      <input class="m3" value="${esc(m.q)}" oninput="dMeds[${i}].q=this.value; renderDis()">
+      <button class="x" title="Remove" onclick="dMeds.splice(${i},1); buildMeds(); renderDis()">&times;</button>
+    </div>`).join('');
+}
+function addMed(){ dMeds.push({m:'', d:'', q:''}); buildMeds(); document.querySelector('#dMeds .medrow:last-child .m1').focus(); }
+function disComps(){
+  return Array.from(document.querySelectorAll('#dCompPanel input:checked')).map(i => {
+    const c = ADMISSION_CODES.find(x => x.code === i.dataset.code); return c.label;
+  });
+}
+function v(id){ return document.getElementById(id).value; }
+function disSnapshot(){
+  return { prog:v('dProg'), dest:v('dDest'), pain:v('dPain'), wound:v('dWound'), act:v('dAct'),
+    other:v('dOther'), notify:v('dNotify'), follow:v('dFollow'), gp:v('dGP'), medchg:v('dMedChg'), meds:dMeds.map(m => Object.assign({}, m)), comps:disComps() };
+}
+function docHead(title, sub){
+  return `<div class="dhead"><div><div class="doc-title">${title}</div><div class="doc-sub">${sub}</div></div><div class="sticker">Patient label</div></div>`;
+}
+function renderDis(){
+  const on = cur.opNote || {};
+  const signed = cur.dis && cur.dis.signed;
+  const comps = signed ? cur.dis.comps : disComps();
+  compState('dCompState', comps);
+  const prog = v('dProg'), dest = v('dDest');
+  const confirmed = document.getElementById('dConfirm').checked, reviewed = document.getElementById('dProgOk').checked;
+  document.getElementById('dSign').disabled = !!signed || !(confirmed && reviewed && prog.trim() && dAuthor);
+  document.getElementById('dOut').style.display = signed ? 'flex' : 'none';
+  document.getElementById('dSign').style.display = signed ? 'none' : '';
+  const other = v('dOther').trim(), medchg = v('dMedChg').trim();
+  const intra = (on.complications && on.complications.length) ? on.complications.map(esc).join('; ') : 'nil';
+  const n = nights(cur);
+  const line = (k, t) => t.trim() ? `<p><strong>${k}.</strong> ${esc(t)}</p>` : '';
+  const sig = signed
+    ? `<span class="sig-name">${esc(cur.dis.signedBy.name.toUpperCase())}</span>, ${esc(cur.dis.signedBy.role)}, on behalf of ${cur.surgeon}<br>Confirmed against the admission's entries and signed ${cur.dis.signed}`
+    : '<span class="empty">Unconfirmed</span>';
+  const provTail = `Data retrieved from SurgiHUB (QA) on ${dmy(NOW)}. ${signed ? 'Document reference ' + cur.dis.ref + '.' : 'Document reference computed at signing.'}`;
+
+  document.getElementById('dPage').innerHTML = `
+    <div class="wm"><span>PARALLEL RUNNING · NOT THE RECORD</span></div>
+    ${docHead('DISCHARGE SUMMARY', 'Brisbane Private Hospital · elective admission · ' + n + ' night' + (n===1?'':'s'))}
+    <table class="hdr-table">
+      <tr><td class="l">Patient</td><td>${cur.name}</td><td class="l">Date of birth</td><td>${cur.dob}</td></tr>
+      <tr><td class="l">Admitted</td><td>${dmy(cur.opDate)}</td><td class="l">Discharged</td><td>${dmy(NOW)}</td></tr>
+      <tr><td class="l">Surgeon</td><td>${cur.surgeon}</td><td class="l">Anaesthetist</td><td>${cur.anaesthetist}</td></tr>
+    </table>
+    <div class="blk">
+      <p><strong>Diagnosis.</strong> ${on.diag ? esc(on.diag) : '<span class="empty">Operation note not found</span>'}</p>
+      <p><strong>Procedure.</strong> ${esc(cur.proc)}, ${dmy(cur.opDate)}.</p>
+      <p class="comp"><strong>Complications.</strong> Intraoperative: ${intra}. Postoperative: ${comps.length ? comps.map(esc).join('; ') : 'nil'}.</p>
+      <p><strong>Course and condition at discharge.</strong> ${prog.trim() ? esc(prog) : '<span class="empty">Required before signing</span>'}</p>
+      <p><strong>Discharged to.</strong> ${dest.trim() ? esc(dest) : '<span class="empty">Home</span>'}</p>
+      <p><strong>Medications on discharge.</strong></p>
+      <table class="med-table"><tr><th>Medication</th><th>Dose</th><th>Duration</th></tr>
+      ${dMeds.filter(m => m.m.trim()).map(m => `<tr><td>${esc(m.m)}</td><td>${esc(m.d)}</td><td>${esc(m.q)}</td></tr>`).join('')}</table>
+      ${medchg ? `<p><strong>Usual medications.</strong> ${esc(medchg)}</p>` : ''}
+      <p><strong>Follow up.</strong> ${esc(v('dFollow'))}${v('dGP').trim() ? ' <strong>GP:</strong> ' + esc(v('dGP')) : ''}</p>
+      <p class="small">Patient instructions are issued separately as the patient note, filed to SurgiHUB with this summary.</p>
+    </div>
+    <div class="sig-block">${sig}</div>
+    <div class="prov">Assembled from the operation note (${on.ref || '—'}) and the admission's ${cur.entries.length} signed entries. Template DISCHARGE v4. ${provTail}</div>`;
+
+  document.getElementById('dNote').innerHTML = `
+    <div class="wm"><span>PARALLEL RUNNING · NOT THE RECORD</span></div>
+    ${docHead('DISCHARGE NOTE FOR ' + esc(firstName(cur)).toUpperCase(), 'SpinePlus · ' + esc(cur.proc) + ', ' + dmy(cur.opDate) + ' · going home ' + dmy(NOW))}
+    <div class="blk pt">
+      ${line('Wound', v('dWound'))}
+      ${line('Pain', v('dPain'))}
+      ${line('Activity', v('dAct'))}
+      ${line('Appointments', v('dFollow'))}
+      ${line('Other', other)}
+      <p><strong>Everything else.</strong> ${esc(STD_APP)}</p>
+      <p><strong>Contact us if</strong></p>
+      <ul>${v('dNotify').split('\n').filter(l => l.trim()).map(l => '<li>'+esc(l)+'</li>').join('')}</ul>
+      <p class="contact">${esc(STD_CONTACT)}</p>
+    </div>
+    <div class="sig-block">${signed ? `Issued by ${esc(cur.dis.signedBy.name)}, ${esc(cur.dis.signedBy.role)}, on behalf of ${cur.surgeon}, ${cur.dis.signed}` : '<span class="empty">Unconfirmed</span>'}</div>
+    <div class="prov">Template PATIENT NOTE v1 · Instructions ${cur._setName || ''}. Filed to the patient's SurgiHUB record with the discharge summary. ${provTail}</div>`;
+}
+
+/* ---------- signing ---------- */
+const pins = () => Array.from(document.querySelectorAll('#pinrow input'));
+function pinValue(){ return pins().map(i => i.value).join(''); }
+function startSign(ctx){
+  signCtx = ctx;
+  const who = ctx === 'ward' ? selAuthor : (ctx === 'dis' ? dAuthor : AUTHORS[1]);
+  document.getElementById('mTitle').textContent =
+    ctx === 'op' ? 'Sign the operation note' : ctx === 'ward' ? 'Sign the entry' : 'Sign the discharge summary';
+  document.getElementById('mWho').textContent = who.name + ', ' + who.role;
+  pins().forEach(i => i.value = '');
+  document.getElementById('signModal').classList.add('open');
+  pins()[0].focus();
+}
+function closeSign(){ document.getElementById('signModal').classList.remove('open'); }
+pins().forEach((inp, i, all) => {
+  inp.addEventListener('input', () => {
+    inp.value = inp.value.replace(/\D/g,'').slice(-1);
+    if (inp.value && i < 3) all[i+1].focus();
+    if (pinValue().length === 4) confirmSign();
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Backspace' && !inp.value && i > 0){ all[i-1].value = ''; all[i-1].focus(); e.preventDefault(); }
+    if (e.key === 'Escape') closeSign();
+  });
+});
+async function sha(s){
+  try{
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+    return Array.from(new Uint8Array(b)).slice(0,4).map(x => x.toString(16).padStart(2,'0')).join('');
+  }catch(e){ return 'mock' + Math.random().toString(16).slice(2,6); }
+}
+async function confirmSign(){
+  if (pinValue().length !== 4) return;
+  closeSign();
+  if (signCtx === 'op'){
+    cur.opNote = { diag:document.getElementById('opDiag').value, findings:document.getElementById('opFind').value,
+      complications:opComps(), signed:dmy(NOW) + ' ' + hm(NOW), ref:await sha('op|'+cur.id+'|'+NOW) };
+    cur.stage = 'ward';
+    openOp();
+    toast('Signed and filed to SurgiHUB. Print or download when ready. (Mock.)');
+  } else if (signCtx === 'ward'){
+    const prev = cur.entries.length ? cur.entries[cur.entries.length-1].hash : '';
+    const text = document.getElementById('wEntry').value.trim();
+    cur.entries.push({when:new Date(NOW), author:selAuthor, text, hash:await sha(prev+'|'+text)});
+    document.getElementById('wEntry').value = '';
+    show('scrList'); buildLists();
+    toast(cur.name + ': entry signed, label printing. (Mock.)');
+  } else {
+    cur.dis = Object.assign({ ready:true, signed:dmy(NOW) + ' ' + hm(NOW), signedBy:dAuthor, ref:await sha('dis|'+cur.id+'|'+NOW) }, disSnapshot());
+    openDis();
+    toast('Signed. Summary and patient note filed to SurgiHUB. Print or download when ready. (Mock.)');
+  }
+}
+
+buildLists();
+</script>
+</body>
+</html>

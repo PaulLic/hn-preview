@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>HubNote (Combined Mock v12)</title>
+<title>HubNote (Combined Mock v13)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -320,7 +320,7 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
   <div class="mark">HubNote <span>· SpinePlus</span></div>
   <div class="env">QA environment</div>
 </div>
-<div class="qa-banner">Combined mock, version 12. Fictional patients throughout. Filing to SurgiHUB is switched off during parallel running.</div>
+<div class="qa-banner">Combined mock, version 13. Fictional patients throughout. Filing to SurgiHUB is switched off during parallel running.</div>
 
 <!-- ============ patients ============ -->
 <div class="screen on" id="scrList">
@@ -504,7 +504,8 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
         <div class="medhead"><div>Medication</div><div>Dose</div><div>Duration</div><div></div></div>
         <div id="dMeds"></div>
         <button class="add-btn" onclick="addMed()">Add a medication</button>
-        <div class="field" style="margin-top:14px;"><label>Changes to usual medications</label><textarea class="std grow" id="dMedChg" rows="1" oninput="grow(this); renderDis()"></textarea></div>
+        <div class="field" style="margin-top:14px;"><label>Usual medications, instructions on discharge</label><textarea class="std grow" id="dMedChg" rows="1" oninput="grow(this); renderDis()"></textarea>
+        <div class="softnote" style="margin-top:6px;">Written once as a clinical instruction and printed word for word on the discharge summary and the patient note.</div></div>
       </div>
       <div class="fsec">
         <h2>Follow up</h2>
@@ -766,7 +767,7 @@ const EPISODES = [
       {when:new Date(2026,7,31,8,0), author:AUTHORS[0], text:'Remains well. Wound dry and intact. Analgesia minimal.', hash:'1c8f92da', printed:false},
       {when:new Date(2026,8,1,7,25), author:AUTHORS[1], text:'Reviewed on morning round. Remains well. Wound dry and intact. Analgesia minimal. Walking unaided, stairs assessed safe. For discharge home today.', hash:'f4a2c981', printed:true, discharge:true},
     ],
-    dis:{ready:true}, statusPrompt:true, medchg:'Restart your usual aspirin tomorrow. Everything else continues as before.', planning:'Home with his partner; working from home for two weeks.' },
+    dis:{ready:true}, statusPrompt:true, medchg:'Aspirin withheld perioperatively, to recommence 3 September 2026. No other changes to usual medications.', planning:'Home with his partner; working from home for two weeks.' },
   { id:'W3', stage:'ward', name:'PAPADOPOULOS, Helen', dob:'09/05/1972', tmpl:'ACDF-1',
     proc:'Anterior cervical discectomy and fusion C5/6',
     opDate:new Date(2026,7,30), surgeon:'Paul Licina', anaesthetist:'S Whitfield', assistant:'Mark Munro',
@@ -1208,7 +1209,7 @@ function renderDis(){
       '<p><strong>Medications on discharge.</strong></p>' +
       '<table class="med-table"><tr><th>Medication</th><th>Dose</th><th>Duration</th></tr>' +
       dMeds.filter(m => m.m.trim()).map(m => '<tr><td>' + esc(m.m) + '</td><td>' + esc(m.d) + '</td><td>' + esc(m.q) + '</td></tr>').join('') + '</table>' +
-      (medchg ? '<p><strong>Usual medications.</strong> ' + esc(medchg) + '</p>' : '') +
+      (medchg ? '<p><strong>Usual medications, instructions on discharge.</strong> ' + esc(medchg) + '</p>' : '') +
       '<p><strong>Follow up.</strong> ' + esc(v('dFollow')) + '</p>' +
       (gp ? '<p><strong>For the GP.</strong> ' + esc(gp) + '</p>' : '') +
     '</div>' +

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>HubNote (Combined Mock v11)</title>
+<title>HubNote (Combined Mock v12)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -127,7 +127,7 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
 .dhead{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
 .dhead .doc-title{margin-bottom:5px;}
 .dhead .doc-sub{margin:0;}
-.sticker{width:70mm; height:36mm; flex-shrink:0; border:1px dashed #B5BEC7; border-radius:2px; display:flex; align-items:center; justify-content:center; color:#B5BEC7; font-size:9pt;}
+.sticker{width:99mm; height:38mm; flex-shrink:0; border:1px dashed #B5BEC7; border-radius:2px; display:flex; align-items:center; justify-content:center; color:#B5BEC7; font-size:9pt;}
 .tabs{display:flex; gap:6px; max-width:720px; margin:0 auto 10px;}
 .tab{border:1px solid var(--rule); background:#fff; border-radius:var(--r-ctl); padding:6px 14px; font-size:var(--fs-s); color:var(--muted);}
 .tab.on{border-color:var(--blue); color:var(--blue); font-weight:600; background:var(--blue-tint);}
@@ -299,7 +299,7 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
   .hdr-table .l{width:78px;}
   .pinrow input{width:60px; height:60px;}
   .medhead{display:none;}
-  .sticker{width:52mm; height:26mm;}
+  .sticker{width:62mm; height:24mm;}
   .outbar{flex-wrap:wrap;}
   .outbar button{flex:1 1 100%;}
   .medrow{grid-template-columns:1fr 1fr 24px; grid-template-areas:"m m x" "d q x";}
@@ -320,7 +320,7 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
   <div class="mark">HubNote <span>· SpinePlus</span></div>
   <div class="env">QA environment</div>
 </div>
-<div class="qa-banner">Combined mock, version 11. Fictional patients throughout. Filing to SurgiHUB is switched off during parallel running.</div>
+<div class="qa-banner">Combined mock, version 12. Fictional patients throughout. Filing to SurgiHUB is switched off during parallel running.</div>
 
 <!-- ============ patients ============ -->
 <div class="screen on" id="scrList">
@@ -537,7 +537,7 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
         </div>
       </div>
       <div class="actions">
-        <label class="confirm-act"><input type="checkbox" id="dConfirm" onchange="renderDis()"><div>I have read the summary and the patient note against the admission's entries and confirm them.<span class="by" id="dConfWho"></span></div></label>
+        <label class="confirm-act"><input type="checkbox" id="dConfirm" onchange="renderDis()"><div>I have read the summary and the patient note against the admission's entries, including the medication instructions, and confirm them.<span class="by" id="dConfWho"></span></div></label>
         <button class="btn-primary" id="dSign" onclick="startSign('dis')">Sign with PIN</button>
       </div>
     </div>
@@ -728,7 +728,7 @@ function instrFor(e){
 }
 /* Three-tier contact block. Provisional wording pending Dr Licina's ruling and Bella's worksheet. */
 const CONTACT_TIERS = [
-  ['Routine or non-urgent', 'Message us in the SurgiHUB app, or telephone 1300 525 354 during business hours.'],
+  ['Non-urgent', 'Message us in the SurgiHUB app.'],
   ['Urgent', 'Telephone 1300 525 354.'],
   ['Emergency', 'Go to the nearest emergency department, or call 000.'],
 ];
@@ -766,7 +766,7 @@ const EPISODES = [
       {when:new Date(2026,7,31,8,0), author:AUTHORS[0], text:'Remains well. Wound dry and intact. Analgesia minimal.', hash:'1c8f92da', printed:false},
       {when:new Date(2026,8,1,7,25), author:AUTHORS[1], text:'Reviewed on morning round. Remains well. Wound dry and intact. Analgesia minimal. Walking unaided, stairs assessed safe. For discharge home today.', hash:'f4a2c981', printed:true, discharge:true},
     ],
-    dis:{ready:true}, statusPrompt:true, planning:'Home with his partner; working from home for two weeks.' },
+    dis:{ready:true}, statusPrompt:true, medchg:'Restart your usual aspirin tomorrow. Everything else continues as before.', planning:'Home with his partner; working from home for two weeks.' },
   { id:'W3', stage:'ward', name:'PAPADOPOULOS, Helen', dob:'09/05/1972', tmpl:'ACDF-1',
     proc:'Anterior cervical discectomy and fusion C5/6',
     opDate:new Date(2026,7,30), surgeon:'Paul Licina', anaesthetist:'S Whitfield', assistant:'Mark Munro',
@@ -949,10 +949,16 @@ function compState(id, comps){
   el.style.background = comps.length ? 'var(--warn-bg)' : 'var(--ok-bg)';
   el.style.color = comps.length ? 'var(--warn)' : 'var(--ok)';
 }
-function docHead(title, hosp, meta){
+function properName(e){
+  const p = e.name.split(',');
+  const fam = (p[0] || '').trim();
+  return (p[1] ? p[1].trim() + ' ' : '') + fam.charAt(0) + fam.slice(1).toLowerCase();
+}
+function docHead(title, hosp, meta, sticker){
   return '<div class="dhead"><div><div class="doc-title">' + title + '</div>' +
-    '<div class="doc-hosp">' + hosp + '</div><div class="doc-meta">' + meta + '</div></div>' +
-    '<div class="sticker">Patient label</div></div>';
+    (hosp ? '<div class="doc-hosp">' + hosp + '</div>' : '') +
+    (meta ? '<div class="doc-meta">' + meta + '</div>' : '') + '</div>' +
+    (sticker === false ? '' : '<div class="sticker">Patient label</div>') + '</div>';
 }
 function renderOp(){
   const diag = document.getElementById('opDiag').value, find = document.getElementById('opFind').value;
@@ -965,7 +971,7 @@ function renderOp(){
   const title = iso(cur.opDate) + ' OPNOTE ' + tmplOf(cur);
   document.getElementById('opPage').innerHTML =
     '<div class="wm"><span>PARALLEL RUNNING · NOT THE RECORD</span></div>' +
-    docHead('OPERATION NOTE', HOSPITAL, dmy(cur.opDate) + ' · SpinePlus') +
+    docHead('OPERATION NOTE', HOSPITAL, '') +
     '<table class="hdr-table">' +
       '<tr><td class="l">Patient</td><td>' + cur.name + '</td><td class="l">Date</td><td>' + dmy(cur.opDate) + '</td></tr>' +
       '<tr><td class="l">Date of birth</td><td>' + cur.dob + '</td><td class="l">Surgeon</td><td>' + cur.surgeon + '</td></tr>' +
@@ -1109,7 +1115,7 @@ function openDis(){
   document.getElementById('dNotify').value = d.notify !== undefined ? d.notify : ins.notify;
   document.getElementById('dFollow').value = d.follow !== undefined ? d.follow : STD_FOLLOW;
   document.getElementById('dGP').value = d.gp !== undefined ? d.gp : STD_GP;
-  document.getElementById('dMedChg').value = d.medchg || '';
+  document.getElementById('dMedChg').value = d.medchg !== undefined ? d.medchg : (cur.medchg || '');
   if (d.meds) dMeds = d.meds.map(m => Object.assign({}, m));
   dAuthor = signed ? cur.dis.signedBy : AUTHORS[0];
   document.getElementById('dConfirm').checked = !!signed;
@@ -1153,6 +1159,17 @@ function disSnapshot(){
   return { prog:v('dProg'), dest:v('dDest'), pain:v('dPain'), wound:v('dWound'), act:v('dAct'),
     other:v('dOther'), notify:v('dNotify'), follow:v('dFollow'), gp:v('dGP'), medchg:v('dMedChg'), meds:dMeds.map(m => Object.assign({}, m)), comps:disComps() };
 }
+/* The summary's table is written for a general practitioner. The patient note carries the same
+   three fields as plain sentences, with the usual-medications instruction directly beneath. */
+function medLines(){
+  const rows = dMeds.filter(m => m.m.trim());
+  const chg = document.getElementById('dMedChg').value.trim();
+  if (!rows.length && !chg) return '';
+  return '<p><strong>Medicines.</strong></p><ul>' +
+    rows.map(m => '<li>' + esc(m.m) + (m.d.trim() ? ': ' + esc(m.d.trim().charAt(0).toLowerCase() + m.d.trim().slice(1)) : '') +
+      (m.q.trim() ? '. ' + esc(m.q.trim().charAt(0).toUpperCase() + m.q.trim().slice(1)) + '.' : '.') + '</li>').join('') +
+    '</ul>' + (chg ? '<p><strong>Your usual medicines.</strong> ' + esc(chg) + '</p>' : '');
+}
 function renderDis(){
   const on = cur.opNote || {};
   const signed = cur.dis && cur.dis.signed;
@@ -1176,7 +1193,7 @@ function renderDis(){
 
   document.getElementById('dPage').innerHTML =
     '<div class="wm"><span>PARALLEL RUNNING · NOT THE RECORD</span></div>' +
-    docHead('DISCHARGE SUMMARY', HOSPITAL, 'Elective admission · ' + n + ' night' + (n===1?'':'s') + ' · SpinePlus') +
+    docHead('DISCHARGE SUMMARY', HOSPITAL, '') +
     '<table class="hdr-table">' +
       '<tr><td class="l">Patient</td><td>' + cur.name + '</td><td class="l">Date of birth</td><td>' + cur.dob + '</td></tr>' +
       '<tr><td class="l">Admitted</td><td>' + dmy(cur.opDate) + '</td><td class="l">Discharged</td><td>' + dmy(NOW) + '</td></tr>' +
@@ -1194,7 +1211,6 @@ function renderDis(){
       (medchg ? '<p><strong>Usual medications.</strong> ' + esc(medchg) + '</p>' : '') +
       '<p><strong>Follow up.</strong> ' + esc(v('dFollow')) + '</p>' +
       (gp ? '<p><strong>For the GP.</strong> ' + esc(gp) + '</p>' : '') +
-      '<p class="small">Patient instructions are issued separately as the patient note, filed to SurgiHUB with this summary.</p>' +
     '</div>' +
     '<div class="sig-block">' + sig + '</div>' +
     '<div class="prov"><span class="filed">Filed to SurgiHUB as ' + sumTitle + '</span><br>' +
@@ -1202,11 +1218,11 @@ function renderDis(){
 
   document.getElementById('dNote').innerHTML =
     '<div class="wm"><span>PARALLEL RUNNING · NOT THE RECORD</span></div>' +
-    docHead('DISCHARGE NOTE', esc(cur.name) + ' · DOB ' + cur.dob, esc(cur.proc) + ', ' + dmy(cur.opDate) + ' · going home ' + dmy(NOW)) +
+    docHead('Discharge note for ' + esc(properName(cur)), '', '', false) +
     '<div class="blk pt">' +
-      '<p>' + esc(firstName(cur)) + ', this is what to do at home.</p>' +
       line('Wound', v('dWound')) +
       line('Pain', v('dPain')) +
+      medLines() +
       line('Activity', v('dAct')) +
       line('Appointments', v('dFollow')) +
       line('Other', other) +
@@ -1218,7 +1234,7 @@ function renderDis(){
     '</div>' +
     '<div class="sig-block">' + (signed ? 'Issued by ' + esc(cur.dis.signedBy.name) + ', ' + esc(cur.dis.signedBy.role) + ', on behalf of ' + cur.surgeon + ', ' + cur.dis.signed : '<span class="empty">Unconfirmed</span>') + '</div>' +
     '<div class="prov"><span class="filed">Filed to SurgiHUB as ' + noteTitle + '</span><br>' +
-      'Template PATIENT NOTE v1 · Instructions ' + (cur._setName || '') + '. Filed to the patient\u2019s SurgiHUB record with the discharge summary. ' + provTail + '</div>';
+      'Template PATIENT NOTE v1 · Instructions ' + (cur._setName || '') + '. ' + provTail + '</div>';
 }
 
 /* ---------- signing ---------- */

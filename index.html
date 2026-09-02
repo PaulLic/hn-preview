@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>HubNote (Combined Mock v10)</title>
+<title>HubNote (Combined Mock v11)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -14,7 +14,7 @@
   --ink:#1A2530; --doc-ink:#20242A; --muted:#5B6B7A; --faint:#9AA7B2;
   --paper:#FFFFFF; --app-bg:#F2F4F6; --rule:#D8DFE6; --rule-soft:#EDF0F3;
   --warn:#B97324; --warn-bg:#FBF3E6; --warn-rule:#E8D5B5; --err:#A63D2F; --ok:#2E6B4F; --ok-bg:#EAF3EE;
-  --fs-xs:12px; --fs-s:13px; --fs-m:14px; --fs-l:15px; --fs-xl:17px; --fs-h1:21px;
+  --fs-xs:13px; --fs-s:14px; --fs-m:15px; --fs-l:16px; --fs-xl:18px; --fs-h1:22px;
   --r-ctl:4px; --r-card:8px;
   --ui:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif;
   --print:Arial,'Helvetica Neue',Helvetica,sans-serif;
@@ -135,15 +135,15 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
 .gen-note:empty{display:none;}
 .review-act{display:flex; gap:8px; align-items:center; font-size:var(--fs-s); font-weight:600; margin-top:8px;}
 .review-act input{width:16px; height:16px;}
-.blk .small{font-size:11px; color:var(--muted);}
+.blk .small{font-size:12px; color:var(--muted);}
 .blk{margin-bottom:20px;}
-.blk h2{font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--rule); padding-bottom:3px; margin-bottom:9px;}
+.blk h2{font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--rule); padding-bottom:3px; margin-bottom:9px;}
 .blk p{margin-bottom:9px;}
 .blk ul{padding-left:18px; margin:0 0 9px;}
 .blk li{margin-bottom:3px;}
 .blk .med-table{margin:4px 0 12px;}
 .blk.pt{background:#F7F9FB; border:1px solid var(--rule); border-radius:4px; padding:12px 14px 8px;}
-.blk .contact{color:var(--doc-ink); font-size:12.5px; margin-bottom:4px;}
+.blk .contact{color:var(--doc-ink); font-size:13.5px; margin-bottom:4px;}
 .blk .contact b{font-weight:700;}
 .blk .empty{color:var(--faint); font-style:italic;}
 
@@ -165,7 +165,7 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
 .row-item{display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--rule-soft); font-size:var(--fs-s);}
 .row-item:last-child{border-bottom:none;}
 .row-item .nm{flex:1;}
-.row-item .cat{display:block; color:var(--muted); font-size:11px;}
+.row-item .cat{display:block; color:var(--muted); font-size:12px;}
 .row-item .x{border:none; background:none; color:var(--muted); font-size:16px; padding:0 4px; line-height:1;}
 .row-item.dup{background:var(--warn-bg);}
 
@@ -208,39 +208,39 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
 .log-top{font-size:var(--fs-xs); display:flex; gap:8px; flex-wrap:wrap; align-items:baseline;}
 .log-when{font-weight:600; color:var(--blue); white-space:nowrap;}
 .log-who{color:var(--muted);}
-.log-flag{font-size:11px; font-weight:600; color:var(--warn); background:var(--warn-bg); border-radius:3px; padding:2px 6px;}
+.log-flag{font-size:12px; font-weight:600; color:var(--warn); background:var(--warn-bg); border-radius:3px; padding:2px 6px;}
 .log-flag.dc{color:var(--blue); background:var(--blue-tint);}
 .log-top{grid-column:1; grid-row:1;}
 .log-act{grid-column:2; grid-row:1 / span 3; align-self:start;}
 .log-act button{border:1px solid var(--rule); background:#fff; border-radius:var(--r-ctl); padding:3px 9px; font-size:var(--fs-xs); white-space:nowrap;}
 .log-act button:hover{background:var(--blue-tint);}
 .log-text{font-size:var(--fs-s); margin-top:4px; white-space:pre-wrap; grid-column:1;}
-.log-ref{font-size:11px; color:var(--faint); margin-top:4px; font-family:ui-monospace,Menlo,Consolas,monospace; grid-column:1;}
+.log-ref{font-size:12px; color:var(--faint); margin-top:4px; font-family:ui-monospace,Menlo,Consolas,monospace; grid-column:1;}
 .log-empty{padding:16px; color:var(--muted); font-style:italic; font-size:var(--fs-s);}
 .refentries{max-height:260px; overflow-y:auto;}
 .refentries .log-row{padding:9px 11px; grid-template-columns:1fr;}
 
 /* ---------- A4 document preview ---------- */
-.page{font-family:var(--print); background:var(--paper); border:1px solid var(--rule); box-shadow:0 1px 4px rgba(20,40,60,.08); max-width:720px; margin:0 auto; padding:46px 54px 40px; position:relative; color:var(--doc-ink); font-size:13px; line-height:1.55; overflow:hidden;}
+.page{font-family:var(--print); background:var(--paper); border:1px solid var(--rule); box-shadow:0 1px 4px rgba(20,40,60,.08); max-width:720px; margin:0 auto; padding:46px 54px 40px; position:relative; color:var(--doc-ink); font-size:14px; line-height:1.55; overflow:hidden;}
 .wm{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; overflow:hidden;}
 .wm span{transform:rotate(-30deg); font-size:20px; font-weight:700; color:rgba(166,61,47,.11); letter-spacing:.06em; white-space:nowrap;}
-.doc-title{font-size:21px; font-weight:700; letter-spacing:.03em; line-height:1.2; margin-bottom:16px;}
-.doc-hosp{font-size:14px; font-weight:600; color:var(--doc-ink); margin-bottom:2px;}
-.doc-meta{font-size:12px; color:var(--muted);}
-.hdr-table{width:100%; border-collapse:collapse; margin-bottom:22px; font-size:12.5px;}
+.doc-title{font-size:22px; font-weight:700; letter-spacing:.03em; line-height:1.2; margin-bottom:16px;}
+.doc-hosp{font-size:15px; font-weight:600; color:var(--doc-ink); margin-bottom:2px;}
+.doc-meta{font-size:13px; color:var(--muted);}
+.hdr-table{width:100%; border-collapse:collapse; margin-bottom:22px; font-size:13.5px;}
 .hdr-table td{border:1px solid var(--rule); padding:6px 9px;}
 .hdr-table .l{color:var(--muted); width:100px;}
 .dsec{margin-bottom:18px;}
-.dsec h3{font-size:12.5px; font-weight:700; margin-bottom:4px;}
+.dsec h3{font-size:13.5px; font-weight:700; margin-bottom:4px;}
 .dsec p{white-space:pre-wrap;}
 .dsec p + p{margin-top:6px;}
 .dsec .empty{color:var(--faint); font-style:italic;}
-.med-table{width:100%; border-collapse:collapse; font-size:12.5px; margin:6px 0;}
+.med-table{width:100%; border-collapse:collapse; font-size:13.5px; margin:6px 0;}
 .med-table td, .med-table th{border:1px solid var(--rule); padding:5px 8px; text-align:left; font-weight:400; vertical-align:top;}
-.med-table th{color:var(--muted); font-size:11.5px;}
+.med-table th{color:var(--muted); font-size:12.5px;}
 .sig-block{margin-top:26px; border-top:1px solid var(--rule); padding-top:13px;}
 .sig-name{font-weight:700;}
-.prov{margin-top:20px; font-size:10.5px; color:var(--muted); border-top:1px solid var(--rule); padding-top:8px; line-height:1.5;}
+.prov{margin-top:20px; font-size:11.5px; color:var(--muted); border-top:1px solid var(--rule); padding-top:8px; line-height:1.5;}
 .filed{font-weight:600; color:var(--doc-ink);}
 
 /* ---------- medications editor ---------- */
@@ -294,8 +294,8 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
   .auth-btn{flex:1 1 100%; padding:12px;}
   .rollbed{padding:14px;}
   .labelwrap, .logwrap{max-width:none;}
-  .page{padding:22px 16px; font-size:13px;}
-  .doc-title{font-size:19px;}
+  .page{padding:22px 16px; font-size:14px;}
+  .doc-title{font-size:20px;}
   .hdr-table .l{width:78px;}
   .pinrow input{width:60px; height:60px;}
   .medhead{display:none;}
@@ -320,7 +320,7 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
   <div class="mark">HubNote <span>· SpinePlus</span></div>
   <div class="env">QA environment</div>
 </div>
-<div class="qa-banner">Combined mock, version 10. Fictional patients throughout. Filing to SurgiHUB is switched off during parallel running.</div>
+<div class="qa-banner">Combined mock, version 11. Fictional patients throughout. Filing to SurgiHUB is switched off during parallel running.</div>
 
 <!-- ============ patients ============ -->
 <div class="screen on" id="scrList">
@@ -388,7 +388,7 @@ input:disabled, textarea:disabled{background:var(--app-bg); color:var(--muted);}
           <div class="field" style="font-size:var(--fs-xs); color:var(--muted);">Changing the type replaces the item numbers, implants and operative text with the template for the new procedure. Level and side come from the booking and are unchanged.</div>
         </div>
         <div class="adj-sec" id="adj_proc">
-          <div class="field"><label>Procedure name</label><input type="text" id="opProc" oninput="renderOp()"></div>
+          <div class="field"><label>Procedure name</label><textarea class="grow" id="opProc" rows="1" oninput="grow(this); renderOp()"></textarea></div>
         </div>
         <div class="adj-sec" id="adj_items">
           <div class="row-list" id="opItems"></div>
@@ -611,37 +611,37 @@ const DIAG_DEFAULT = {
    Fictional configuration for the mock; the real set is thirteen. */
 const TEMPLATES = {
   'DISC-1': { base:'DISC', label:'Lumbar microdiscectomy, one level',
-    name:'Lumbar microdiscectomy {level}, {side} (DISC)', items:['51011','40330'], implants:[],
+    name:'Lumbar microdiscectomy {level}, {side}', items:['51011','40330'], implants:[],
     text:'Through a small midline incision a microdiscectomy was performed at the level indicated under the microscope. The nerve root was identified and protected, the disc fragment removed and the root confirmed free. Haemostasis was confirmed and the wound closed in layers.' },
   'DISC-2': { base:'DISC', label:'Lumbar microdiscectomy, two levels',
-    name:'Lumbar microdiscectomy {level}, {side} (DISC)', items:['51011','40330','40330'], implants:[],
+    name:'Lumbar microdiscectomy {level}, {side}', items:['51011','40330','40330'], implants:[],
     text:'Through a midline incision microdiscectomy was performed at both levels indicated under the microscope. At each level the nerve root was identified and protected, the disc fragment removed and the root confirmed free. Haemostasis was confirmed and the wound closed in layers.' },
   'DISC-R': { base:'DISC', label:'Lumbar microdiscectomy, revision',
-    name:'Revision lumbar microdiscectomy {level}, {side} (DISC)', items:['51011','40332'], implants:[],
+    name:'Revision lumbar microdiscectomy {level}, {side}', items:['51011','40332'], implants:[],
     text:'Through the previous midline incision the level indicated was re-explored under the microscope. Epidural scar was dissected from the dura and the nerve root identified and protected. Recurrent disc material was removed and the root confirmed free. Haemostasis was confirmed and the wound closed in layers.' },
   'LAMI-1': { base:'LAMI', label:'Lumbar laminectomy, one level',
-    name:'Lumbar laminectomy {level} (LAMI)', items:['51011','40332'], implants:[],
+    name:'Lumbar laminectomy {level}', items:['51011','40332'], implants:[],
     text:'Through a midline incision a laminectomy was performed at the level indicated. The canal and lateral recesses were decompressed and the roots confirmed free. Haemostasis was confirmed and the wound closed in layers.' },
   'TLIF-1': { base:'TLIF', label:'Minimally invasive TLIF, one level',
-    name:'Minimally invasive transforaminal lumbar interbody fusion {level}, {side} (TLIF)',
+    name:'Minimally invasive transforaminal lumbar interbody fusion {level}, {side}',
     items:['51011','51021','51031'],
     implants:[{name:'IdentiTi PO cage', cat:'Interbody cage'}, {name:'NuVasive Reline screws x4', cat:'Pedicle screws'}],
     text:'Through a midline incision, a minimally invasive transforaminal lumbar interbody fusion was performed at the level indicated. Pedicle screws were placed with image guidance and position confirmed. The disc space was prepared, the cage introduced and posture restored. Haemostasis was confirmed and the wound closed in layers.' },
   'TLIF-2': { base:'TLIF', label:'Minimally invasive TLIF, two levels',
-    name:'Minimally invasive transforaminal lumbar interbody fusion {level}, {side} (TLIF)',
+    name:'Minimally invasive transforaminal lumbar interbody fusion {level}, {side}',
     items:['51011','51021','51031','51031'],
     implants:[{name:'IdentiTi PO cage', cat:'Interbody cage'}, {name:'IdentiTi PO cage', cat:'Interbody cage'}, {name:'NuVasive Reline screws x6', cat:'Pedicle screws'}],
     text:'Through a midline incision, a minimally invasive transforaminal lumbar interbody fusion was performed at both levels indicated. Pedicle screws were placed with image guidance and position confirmed. Each disc space was prepared, the cage introduced and posture restored. Haemostasis was confirmed and the wound closed in layers.' },
   'LFUS-1': { base:'LFUS', label:'Posterolateral lumbar fusion, one level',
-    name:'Posterolateral lumbar fusion {level} (LFUS)', items:['51011','51021'],
+    name:'Posterolateral lumbar fusion {level}', items:['51011','51021'],
     implants:[{name:'NuVasive Reline screws x4', cat:'Pedicle screws'}],
     text:'Through a midline incision the posterior elements were exposed at the level indicated. Pedicle screws were placed with image guidance and position confirmed. The transverse processes and facets were decorticated and graft laid posterolaterally. Haemostasis was confirmed and the wound closed in layers.' },
   'ACDF-1': { base:'ACDF', label:'Anterior cervical discectomy and fusion, one level',
-    name:'Anterior cervical discectomy and fusion {level} (ACDF)', items:['51011','50803'],
+    name:'Anterior cervical discectomy and fusion {level}', items:['51011','50803'],
     implants:[{name:'Zero-P VA cage', cat:'Interbody cage'}],
     text:'Through an anterior cervical approach the disc was exposed at the level indicated and confirmed with imaging. Discectomy and decompression were performed under the microscope, the cage introduced and position confirmed. Haemostasis was confirmed and the wound closed in layers.' },
   'ACDF-2': { base:'ACDF', label:'Anterior cervical discectomy and fusion, two levels',
-    name:'Anterior cervical discectomy and fusion {level} (ACDF)', items:['51011','50803','50803'],
+    name:'Anterior cervical discectomy and fusion {level}', items:['51011','50803','50803'],
     implants:[{name:'Zero-P VA cage', cat:'Interbody cage'}, {name:'Zero-P VA cage', cat:'Interbody cage'}],
     text:'Through an anterior cervical approach both discs were exposed at the levels indicated and confirmed with imaging. Discectomy and decompression were performed at each level under the microscope, the cages introduced and position confirmed. Haemostasis was confirmed and the wound closed in layers.' },
 };
@@ -688,6 +688,7 @@ function applyTemplate(key){
   document.getElementById('opText').value = t.text;
   setDiagField();
   buildRows(); renderOp();
+  growAll('#scrOp textarea.grow');
 }
 function setDiagField(){
   const d = diagDefault(cur);
@@ -697,6 +698,7 @@ function setDiagField(){
     ? 'Template default for ' + tmplOf(cur) + '. Amend as required.'
     : 'This template carries no default diagnosis.';
   grow(el);
+  grow(document.getElementById('opProc'));
 }
 
 const COMMON = {
@@ -737,13 +739,13 @@ const HOSPITAL = 'Brisbane Private Hospital';
 
 const EPISODES = [
   { id:'T1', stage:'theatre', name:'NGUYEN, Marisol', dob:'22/07/1969', tmpl:'TLIF-1',
-    proc:'Minimally invasive transforaminal lumbar interbody fusion L4/5, left (TLIF)',
+    proc:'Minimally invasive transforaminal lumbar interbody fusion L4/5, left',
     opDate:new Date(2026,8,1), opTime:'08:00', surgeon:'Paul Licina', anaesthetist:'S Whitfield', assistant:'Mark Munro',
     items:['51011','51021','51031'],
     implants:[{name:'IdentiTi PO cage', cat:'Interbody cage'}, {name:'Stryker Tritanium cage', cat:'Interbody cage'}, {name:'NuVasive Reline screws x4', cat:'Pedicle screws'}],
     opNote:null, entries:[], dis:null },
   { id:'W1', stage:'ward', name:'CARTWRIGHT, Elaine', dob:'14/03/1961', tmpl:'TLIF-1',
-    proc:'Minimally invasive transforaminal lumbar interbody fusion L4/5, right (TLIF)',
+    proc:'Minimally invasive transforaminal lumbar interbody fusion L4/5, right',
     opDate:new Date(2026,7,29), surgeon:'Paul Licina', anaesthetist:'S Whitfield', assistant:'Mark Munro',
     items:['51011','51021','51031'],
     implants:[{name:'IdentiTi PO cage', cat:'Interbody cage'}, {name:'NuVasive Reline screws x4', cat:'Pedicle screws'}],
@@ -754,7 +756,7 @@ const EPISODES = [
     ],
     dis:null },
   { id:'W2', stage:'ward', name:'OKAFOR, Daniel', dob:'02/11/1978', tmpl:'DISC-1',
-    proc:'Lumbar microdiscectomy L5/S1, right (DISC)',
+    proc:'Lumbar microdiscectomy L5/S1, right',
     opDate:new Date(2026,7,28), surgeon:'Paul Licina', anaesthetist:'R Menon', assistant:'Mark Munro',
     items:['51011','40330'], implants:[],
     opNote:{diag:'L5/S1 disc herniation with right S1 radiculopathy', findings:'Large sequestrated fragment beneath the right S1 root, removed. Root free at close.', signed:'28/08/2026 11:05', ref:'77c1d0e4', complications:[]},
@@ -766,7 +768,7 @@ const EPISODES = [
     ],
     dis:{ready:true}, statusPrompt:true, planning:'Home with his partner; working from home for two weeks.' },
   { id:'W3', stage:'ward', name:'PAPADOPOULOS, Helen', dob:'09/05/1972', tmpl:'ACDF-1',
-    proc:'Anterior cervical discectomy and fusion C5/6 (ACDF)',
+    proc:'Anterior cervical discectomy and fusion C5/6',
     opDate:new Date(2026,7,30), surgeon:'Paul Licina', anaesthetist:'S Whitfield', assistant:'Mark Munro',
     items:['51011','50803'], implants:[{name:'Zero-P VA cage', cat:'Interbody cage'}],
     opNote:{diag:'C5/6 disc protrusion with left C6 radiculopathy', findings:'Large left paracentral protrusion compressing the C6 root, removed. Root decompressed.', signed:'30/08/2026 13:40', ref:'c9e2517b', complications:[]},
@@ -814,7 +816,7 @@ function authorButtons(list, sel, onpick){
     '<button class="auth-btn ' + (sel && sel.id===a.id ? 'sel':'') + '" onclick="' + onpick + '(\'' + a.id + '\')">' + esc(a.name) + '<small>' + esc(a.role) + (a.relief ? ' · relief' : '') + '</small></button>').join('');
 }
 function statusNoticeHTML(){
-  return '<strong>SurgiHUB status not changed.</strong>The discharge round has been signed. Set the booking status to Discharge in SurgiHUB. HubNote does not write to the booking.' +
+  return '<strong>SurgiHUB status not changed.</strong>The discharge round has been signed. Set the booking status to Discharge in SurgiHUB.' +
     '<button onclick="toast(\'Opens the booking at the status control in SurgiHUB. (Mock.)\')">Open the booking in SurgiHUB</button>';
 }
 function showStatusNotice(id){
@@ -909,8 +911,8 @@ function openOp(){
   document.getElementById('opOut').className = 'outbar' + (signed ? ' on' : '');
   document.getElementById('opSign').style.display = signed ? 'none' : '';
   renderOp();
-  grow(document.getElementById('opDiag'));
   show('scrOp');
+  growAll('#scrOp textarea.grow');
   if (!signed) setTimeout(() => document.getElementById('opFind').focus(), 50);
 }
 function buildRows(){
@@ -929,7 +931,7 @@ function buildRows(){
   if (dups.length && !cur.opNote){
     note.style.display = 'block';
     note.textContent = 'The booking carries more than one implant in: ' + dups.join(', ') +
-      '. Remove any that were not used. Both may stand where both were used, for example at two levels. Signing is not blocked.';
+      '. Remove any that were not used.';
   } else {
     note.style.display = 'none';
   }
@@ -1120,6 +1122,7 @@ function openDis(){
   document.querySelectorAll('#scrDis textarea, #scrDis input[type=text], #scrDis .add-btn, #scrDis .medrow .x').forEach(el => el.disabled = !!signed);
   show('scrDis');
   growAll('#scrDis textarea.grow, #scrDis .medrow textarea');
+  setTimeout(function(){ growAll('#scrDis textarea.grow, #scrDis .medrow textarea'); }, 30);
 }
 function disTab(t){
   document.getElementById('dPage').style.display = t === 'sum' ? '' : 'none';
@@ -1199,8 +1202,9 @@ function renderDis(){
 
   document.getElementById('dNote').innerHTML =
     '<div class="wm"><span>PARALLEL RUNNING · NOT THE RECORD</span></div>' +
-    docHead('DISCHARGE NOTE FOR ' + esc(firstName(cur)).toUpperCase(), 'SpinePlus', esc(cur.proc) + ', ' + dmy(cur.opDate) + ' · going home ' + dmy(NOW)) +
+    docHead('DISCHARGE NOTE', esc(cur.name) + ' · DOB ' + cur.dob, esc(cur.proc) + ', ' + dmy(cur.opDate) + ' · going home ' + dmy(NOW)) +
     '<div class="blk pt">' +
+      '<p>' + esc(firstName(cur)) + ', this is what to do at home.</p>' +
       line('Wound', v('dWound')) +
       line('Pain', v('dPain')) +
       line('Activity', v('dAct')) +
